@@ -1,4 +1,4 @@
-const OB_CACHE = "ornibreed-v26-31-shell";
+const OB_CACHE = "ornialleva-production-v34-18-1-20261029";
 const OB_STATIC = [
   "./",
   "./manifest.webmanifest",
@@ -6,7 +6,9 @@ const OB_STATIC = [
   "./icon-512.png",
   "./apple-touch-icon.png",
   "./favicon-32.png",
-  "./favicon-16.png"
+  "./favicon-16.png",
+  "./ob_asset_051_3aefa10cbb.jpg",
+  "./ornibreed_home_banner_v2.png"
 ];
 
 self.addEventListener("install", event => {
@@ -16,7 +18,7 @@ self.addEventListener("install", event => {
 self.addEventListener("activate", event => {
   event.waitUntil((async()=>{
     const keys=await caches.keys();
-    await Promise.all(keys.filter(k=>k.startsWith("ornibreed-") && k!==OB_CACHE).map(k=>caches.delete(k)));
+    await Promise.all(keys.filter(k=>k.startsWith("ornialleva-production-") && k!==OB_CACHE).map(k=>caches.delete(k)));
     await self.clients.claim();
   })());
 });
@@ -37,7 +39,7 @@ self.addEventListener("fetch", event => {
         cache.put("./",fresh.clone()).catch(()=>{});
         return fresh;
       }catch(e){
-        return (await caches.match("./")) || Response.error();
+        return (await (await caches.open(OB_CACHE)).match("./")) || Response.error();
       }
     })());
     return;
@@ -46,7 +48,7 @@ self.addEventListener("fetch", event => {
   // Static same-origin assets and CDN libraries: cache-first after first successful load.
   if(url.origin===self.location.origin || url.hostname==="cdn.jsdelivr.net" || url.hostname==="cdnjs.cloudflare.com"){
     event.respondWith((async()=>{
-      const cached=await caches.match(req);
+      const cached=await (await caches.open(OB_CACHE)).match(req);
       if(cached) return cached;
       const fresh=await fetch(req);
       if(fresh && (fresh.ok || fresh.type==="opaque")){

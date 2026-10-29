@@ -28,3 +28,12 @@ I file binari seguenti sono stati caricati nel ramo candidato e corrispondono ag
 6. Verificare funzionamento di admin, conferma email, modalità ospite e tutte le immagini.
 
 **NON UNIRE il ramo in main, NON attivare il canale production e NON modificare Supabase prima del collaudo.**
+
+## Scelta di aggiornamento per gli utenti (29/10/2026)
+- Rilascio diretto V30.99 -> V34.18.1, senza versione intermedia. La V30.99 non dispone del controllo degli aggiornamenti tramite ob_app_releases.
+- Alla prima apertura della nuova versione production da un account autenticato, il popup "Le novità di OrniAlleva" elenca le modifiche effettive. Compare una sola volta per utente/versione/dispositivo; non appare nella modalità ospite. Non pretende che l'utente abbia premuto un pulsante in V30.99.
+- Dalla versione nuova, la verifica "Aggiorna ora" e "Più tardi" usa il canale production di ob_app_releases, se il record e le policy RLS sono configurati correttamente.
+- Il vecchio pulsante di introduzione "Scopri OrniAlleva" è stato rimosso come concordato; rimane "Inizia a utilizzare l'app". Sistemato il pulsante "Continua su OrniAlleva" nel popup.
+- Test: 42 elementi script ispezionati con node --check, nessun errore sintattico; simulazione isolata JavaScript del popup verifica primo utilizzo, singola visualizzazione, note e modalità ospite.
+- Limite del collaudo: il test Chromium di navigazione locale non è eseguibile in questo ambiente (blocco amministrativo). Nessuna sessione reale client/account è stata collaudata.
+- **NON pubblicato**: il sito main è rimasto invariato, e non sono state apportate modifiche ai record Supabase.

@@ -2807,7 +2807,6 @@ html.ob-return-from-admin #obAdminReturnTransition,#obAdminReturnTransition.ob-t
     <p><b>Un solo posto per le informazioni, più tempo per ciò che ami.</b></p>
     <p><b>Il tuo allevamento cresce. OrniAlleva cresce con te.</b></p>
     <label style="display:flex;gap:9px;align-items:center;justify-content:center;margin:16px 0;cursor:pointer;font-size:14px"><input type="checkbox" id="obIntroDontShow" style="width:18px;height:18px">Non mostrare più automaticamente</label>
-    <button type="button" id="obIntroExploreBtn" class="success" style="width:100%;margin-bottom:7px">✨ Scopri OrniAlleva</button>
     <button type="button" id="obIntroStartBtn" class="secondary" style="width:100%">Inizia a utilizzare l'app</button>
   </div>
 </div>
@@ -2834,10 +2833,6 @@ html.ob-return-from-admin #obAdminReturnTransition,#obAdminReturnTransition.ob-t
   };
   document.addEventListener("DOMContentLoaded",function(){
     document.getElementById("obIntroStartBtn")?.addEventListener("click",closeIntro);
-    document.getElementById("obIntroExploreBtn")?.addEventListener("click",function(){
-      closeIntro();
-      if(typeof apriPagina==="function")apriPagina("scopri_ornibreed");
-    });
   });
 })();
 </script>
@@ -3061,6 +3056,25 @@ function obV34181MostraSuccessoPostAggiornamento(){
  const current=obV34181CronologiaLocale().find(r=>r.version===OB_APP_VERSION)||OB_CURRENT_RELEASE;
  obV34181RigheNote("obReleaseSuccessNotes",current.notes?.length?current.notes:OB_CURRENT_RELEASE.notes);
  modal.classList.remove("hidden");$("obReleaseSuccessContinue")?.focus();
+}
+/* V34.18.1 release clienti: le novita sono visibili anche dopo il primo passaggio
+   dalla V30.99, che non aveva il sistema di aggiornamento controllato. */
+function obV34181MostraNovitaPrimoAvvio(){
+ if(OB_RELEASE_CHANNEL!=="production"||!sessionUser?.id||window.__obGuestMode)return;
+ const modal=$("obReleaseSuccessModal");
+ if(!modal||!modal.classList.contains("hidden"))return;
+ const id=String(sessionUser.id);
+ const key="ornialleva_novita_primo_avvio_"+OB_RELEASE_CHANNEL+"_"+id+"_"+OB_APP_VERSION;
+ const installata="ornibreed_release_success_"+OB_RELEASE_CHANNEL+"_"+id+"_"+OB_APP_VERSION;
+ try{
+  if(localStorage.getItem(key)==="1"||localStorage.getItem(installata)==="1")return;
+ }catch(_){}
+ $("obReleaseSuccessTitle").textContent="Le novità di OrniAlleva";
+ $("obReleaseSuccessSubtitle").textContent="Ora stai utilizzando la versione V"+OB_APP_VERSION+".";
+ obV34181RigheNote("obReleaseSuccessNotes",OB_CURRENT_RELEASE.notes);
+ modal.classList.remove("hidden");
+ try{localStorage.setItem(key,"1");}catch(_){}
+ $("obReleaseSuccessContinue")?.focus();
 }
 function obV34181CollegaNovita(){
  $("obReleaseSuccessContinue")?.addEventListener("click",obV34181ChiudiSuccesso);
@@ -4177,6 +4191,7 @@ async function mostraApp(){
       obV3415AvviaAggiornamenti();
       void obV34181CaricaCronologiaRemota();
       obV34181MostraSuccessoPostAggiornamento();
+      obV34181MostraNovitaPrimoAvvio();
     }
   }catch(e){
     msg("Profilo non disponibile: "+(e?.message||e));
@@ -14417,7 +14432,7 @@ const obV3078ApriPagina=window.apriPagina;window.apriPagina=async function(id,..
     </div>
     <h3>Ecco le novità di questa versione</h3>
     <ul id="obReleaseSuccessNotes" class="ob-release-note-list"></ul>
-    <button type="button" id="obReleaseSuccessContinue" class="primary">Continua su OrniBreed</button>
+    <button type="button" id="obReleaseSuccessContinue" class="primary">Continua su OrniAlleva</button>
     <p class="small ob-release-success-hint">Ritrovi queste informazioni in Impostazioni → Informazioni app.</p>
   </div>
 </div>

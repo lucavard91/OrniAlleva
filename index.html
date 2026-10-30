@@ -2686,7 +2686,15 @@ async function obClientInstalla(){
  const next=obClientUrl(obClientPending.update_url);if(!next)return;
  $("obClientNotice").classList.add("hidden");
  try{sessionStorage.setItem("ornialleva_post_update",obClientPending.version);}catch(_){}
- if(navigator.serviceWorker){try{await navigator.serviceWorker.getRegistration().then(r=>r?.update());}catch(_){}}
+ if(navigator.serviceWorker){
+  try{
+   const reg=await navigator.serviceWorker.getRegistration();
+   if(reg){
+    await reg.update();
+    if(reg.waiting)reg.waiting.postMessage({type:"ORNIALLEVA_INSTALL_APPROVED"});
+   }
+  }catch(e){console.warn("Aggiornamento SW differito",e);}
+ }
  next.searchParams.set("ornialleva_update",Date.now().toString());
  location.assign(next.href);
 }

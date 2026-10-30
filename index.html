@@ -2621,6 +2621,7 @@ const sezioni=["home","profilo","soggetti","coppie","riproduzione","genealogia",
 /* Clienti V30.99: motore rilasci production. Si integra con campanella, Impostazioni e autenticazione esistenti. */
 const OB_CLIENT_VERSION="30.99.0";
 const OB_CLIENT_CHANNEL="production";
+const OB_CLIENT_TEST=new URLSearchParams(location.search).get("ornialleva_test_update")==="1";
 let obClientPending=null,obClientSnoozed="",obClientTimer=null,obClientBusy=false;
 function obClientNuova(v){
  const parse=x=>String(x||"").replace(/^v/i,"").split(".").map(Number);
@@ -2670,7 +2671,10 @@ async function obClientControlla(manuale=false){
  if(obClientBusy||!sessionUser?.id||!sb||$("app")?.classList.contains("hidden")||(!manuale&&document.visibilityState==="hidden"))return;
  obClientBusy=true;if(manuale)obClientSettings("Controllo aggiornamenti…");
  try{
-  const {data,error}=await sb.from("ob_app_releases").select("version,title,notes,update_url,active").eq("channel",OB_CLIENT_CHANNEL).eq("active",true).maybeSingle();
+  // Solo per il test manuale dal link dedicato: non scrive nel database e non installa nulla.
+  const fake=OB_CLIENT_TEST?{version:"30.99.1",title:"OrniAlleva — test aggiornamenti",notes:["Verifica dell'avviso all'apertura.","Verifica della campanella e di Più tardi.","Verifica del controllo dalle Impostazioni."],update_url:"./",active:true}:null;
+  const response=fake?{data:fake,error:null}:await sb.from("ob_app_releases").select("version,title,notes,update_url,active").eq("channel",OB_CLIENT_CHANNEL).eq("active",true).maybeSingle();
+  const {data,error}=response;
   if(error)throw error;
   if(!data||!obClientNuova(data.version)||!obClientUrl(data.update_url)){
    obClientPending=null;$("obClientNotice")?.classList.add("hidden");obClientSettings("Nessun aggiornamento disponibile.");return;
@@ -2682,6 +2686,12 @@ async function obClientControlla(manuale=false){
 }
 async function obClientInstalla(){
  if(!obClientPending)return;
+ if(OB_CLIENT_TEST){
+  if(obClientSchedaAperta()){obClientSettings("Prima salva o chiudi la scheda aperta.");return;}
+  $("obClientNotice").classList.add("hidden");
+  obClientPending=null;obClientSettings("Test completato: installazione simulata. Nessun dato modificato.");
+  return;
+ }
  if(obClientSchedaAperta()){obClientSettings("Prima salva o chiudi la scheda aperta.");$("obClientNotice").classList.add("hidden");return;}
  const next=obClientUrl(obClientPending.update_url);if(!next)return;
  $("obClientNotice").classList.add("hidden");

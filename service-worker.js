@@ -1,4 +1,4 @@
-const OB_CACHE = "ornibreed-v26-31-shell";
+const OB_CACHE = "ornibreed-v30-99-release-bootstrap-20261030";
 const OB_STATIC = [
   "./",
   "./manifest.webmanifest",
@@ -10,8 +10,10 @@ const OB_STATIC = [
 ];
 
 self.addEventListener("install", event => {
-  event.waitUntil(caches.open(OB_CACHE).then(cache => cache.addAll(OB_STATIC)).then(()=>self.skipWaiting()));
+  event.waitUntil(caches.open(OB_CACHE).then(cache => cache.addAll(OB_STATIC)));
 });
+
+self.addEventListener("message",event=>{if(event.data?.type==="ORNIALLEVA_INSTALL_APPROVED")self.skipWaiting();});
 
 self.addEventListener("activate", event => {
   event.waitUntil((async()=>{

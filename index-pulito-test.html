@@ -1570,9 +1570,17 @@ html.ob-return-from-admin #obAdminReturnTransition,#obAdminReturnTransition.ob-t
   }
   prepareV264Intro();
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',prepareV264Intro,{once:true});
-  if(document.readyState==='complete')window.setTimeout(dismissV255Intro,5000);
-  else window.addEventListener('load',function(){window.setTimeout(dismissV255Intro,5000);},{once:true});
-  window.setTimeout(dismissV255Intro,7200);
+  // La chiusura dell'intro non deve aspettare il completamento di immagini o servizi esterni.
+  function mostraAccessoSeNonAvviato(){
+    dismissV255Intro();
+    var app=document.getElementById('app');
+    var login=document.getElementById('loginScreen');
+    var altriAccessi=document.querySelector('#registerScreen:not(.hidden),#resetScreen:not(.hidden),#recoverAccountScreen:not(.hidden)');
+    if(login && !altriAccessi && (!app || app.classList.contains('hidden'))){
+      login.classList.remove('hidden');
+    }
+  }
+  window.setTimeout(mostraAccessoSeNonAvviato,5000);
 })();
 </script>
 <div id="allevamentoLoading" aria-live="polite" aria-busy="true"><div class="loading-card"><div class="spinner" aria-hidden="true"></div><p id="allevamentoLoadingTitle">Cambio allevamento…</p><div class="small" style="margin-top:6px;">Caricamento dei dati in corso</div></div></div>

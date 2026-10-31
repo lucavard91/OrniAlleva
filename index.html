@@ -1541,7 +1541,7 @@ html.ob-return-from-admin #obAdminReturnTransition,#obAdminReturnTransition.ob-t
 </head>
 <body>
 <div id="obAdminReturnTransition" aria-live="polite" aria-label="OrniBreed Manager — Caricamento"><div class="ob-return-card"><div class="ob-return-mark" aria-hidden="true"></div><b>OrniBreed Manager</b><span>Caricamento…</span></div></div>
-<div id="v255BrandIntro" aria-label="OrniAlleva — Allevamento Uccelli"><div class="v261-intro-bg" aria-hidden="true"></div><img class="v256-intro-image" alt="OrniAlleva — La tua passione. Il tuo allevamento." src="assets_embedded/assets_embedded/ob_asset_051_3aefa10cbb.jpg"></div></div>
+<div id="v255BrandIntro" aria-label="OrniAlleva — Allevamento Uccelli"><div class="v261-intro-bg" aria-hidden="true"></div><img class="v256-intro-image" alt="OrniAlleva — La tua passione. Il tuo allevamento." src="ob_asset_051_3aefa10cbb.jpg?oa=20261028"></div></div>
 <div id="allevamentoLoading" aria-live="polite" aria-busy="true"><div class="loading-card"><div class="spinner" aria-hidden="true"></div><p id="allevamentoLoadingTitle">Cambio allevamento…</p><div class="small" style="margin-top:6px;">Caricamento dei dati in corso</div></div></div>
 <div id="loginScreen">
   <div class="v264-auth-card">
@@ -1725,13 +1725,11 @@ html.ob-return-from-admin #obAdminReturnTransition,#obAdminReturnTransition.ob-t
 <section id="home">
   <div class="card" id="obWelcomeCard">
     <div id="obWelcomeBannerWrap">
-      <img id="obWelcomeBanner" src="ornibreed_home_banner_v2.png" alt="OrniBreed Manager · Tu allevi. OrniBreed organizza." loading="eager">
-      <button id="obScopriOrniBreedBtn" type="button" data-page="scopri_ornibreed" aria-label="Scopri OrniBreed"></button>
-  <span id="obScopriFinger" aria-hidden="true">👇</span>
+      <img id="obWelcomeBanner" src="ornibreed_home_banner_v2.png?oa=20261028" alt="OrniAlleva · Tu allevi. OrniAlleva organizza." loading="eager">
     </div>
     <div class="page-title">
       <div>
-        <h2>Benvenuto in OrniBreed Manager</h2>
+        <h2>Benvenuto in OrniAlleva</h2>
         <div class="small" id="utenteLoggato"></div>
       </div>
     </div>
@@ -3530,6 +3528,7 @@ async function mostraApp(){
     toggle("registerScreen",false);
     toggle("resetScreen",false);
     toggle("app",true);
+    void v18CaricaProfiloUI();
     setTimeout(obClientAvvia,800);
     try{document.documentElement.classList.remove("ob-return-from-admin");const t=document.getElementById("obAdminReturnTransition");if(t)t.style.display="none";if(location.search.includes("from=admin"))history.replaceState(null,"",location.pathname+location.hash);}catch(_){}
     const u=await utenteCorrente();

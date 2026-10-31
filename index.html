@@ -3027,12 +3027,25 @@ function mostraCaricamentoAllevamento(nome){
   overlay?.classList.add("visible");
 }
 function nascondiCaricamentoAllevamento(){$("allevamentoLoading")?.classList.remove("visible");}
+function obAggiornaProfiloAllevamento(){
+  const nome=String(allevamentoAttivo?.nome||"").trim();
+  if(!nome)return;
+  const riepilogo=document.getElementById("profiloRiepilogoHomeV18");
+  if(riepilogo){
+    let riga=[...riepilogo.querySelectorAll("div")].find(el=>/^\s*Allevamento\s*:/i.test(el.textContent||""));
+    if(!riga){riga=document.createElement("div");riepilogo.appendChild(riga);}
+    riga.replaceChildren();
+    const b=document.createElement("b");b.textContent="Allevamento:";riga.append(b,document.createTextNode(" "+nome));
+  }
+  const field=document.getElementById("profiloAllevamento");
+  if(field)field.value=nome;
+}
 async function cambiaAllevamento(id,lista){
   const scelto=(lista||[]).find(a=>String(a.id)===String(id)); if(!scelto||String(scelto.id)===String(allevamentoAttivo?.id||""))return;
   const inizio=Date.now();
   mostraCaricamentoAllevamento(scelto.nome||"allevamento");
   const timer=setTimeout(()=>{nascondiCaricamentoAllevamento();obAvviso("⚠️ Il cambio allevamento sta impiegando troppo tempo. Riprova.");},10000);
-  try{const u=await utenteCorrente(); allevamentoAttivo=scelto; localStorage.setItem("myagari_active_allevamento_"+u.id,allevamentoAttivo.id); aggiornaSelettoreAllevamento(lista); inizializzaNotifichePersonali(); await apriPagina("home"); const trascorso=Date.now()-inizio; const durataMinima=700; if(trascorso<durataMinima)await new Promise(r=>setTimeout(r,durataMinima-trascorso));}catch(e){errore(e);}finally{clearTimeout(timer);nascondiCaricamentoAllevamento();}
+  try{const u=await utenteCorrente(); allevamentoAttivo=scelto; localStorage.setItem("myagari_active_allevamento_"+u.id,allevamentoAttivo.id); aggiornaSelettoreAllevamento(lista); obAggiornaProfiloAllevamento(); inizializzaNotifichePersonali(); await apriPagina("home"); await v18CaricaProfiloUI(); obAggiornaProfiloAllevamento(); requestAnimationFrame(()=>obAggiornaProfiloAllevamento()); const trascorso=Date.now()-inizio; const durataMinima=700; if(trascorso<durataMinima)await new Promise(r=>setTimeout(r,durataMinima-trascorso));}catch(e){errore(e);}finally{clearTimeout(timer);nascondiCaricamentoAllevamento();}
 }
 async function eliminaAllevamentoSecondario(lista){
   if(!allevamentoAttivo)return; const indice=(lista||[]).findIndex(a=>String(a.id)===String(allevamentoAttivo.id)); if(indice===0){obAvviso("L'allevamento principale non può essere eliminato da questa funzione.");return;}

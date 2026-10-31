@@ -2413,6 +2413,7 @@ html.ob-return-from-admin #obAdminReturnTransition,#obAdminReturnTransition.ob-t
   <div id="v1812NotificheArchivio"></div>
 </section>
 <div id="obClientNotice" class="hidden" role="dialog" aria-modal="true" aria-labelledby="obClientTitle" style="position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:16px"><div class="card" style="width:min(94vw,460px);max-height:85vh;overflow:auto"><h2 id="obClientTitle">Aggiornamento disponibile</h2><p id="obClientVersion"></p><ul id="obClientNotes"></ul><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="secondary" type="button" id="obClientLater">Più tardi</button><button class="success" type="button" id="obClientNow">Aggiorna ora</button></div></div></div>
+<div id="obClientSuccess" class="hidden" role="dialog" aria-modal="true" aria-labelledby="obClientSuccessTitle" style="position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:18px"><div class="card" style="width:min(94vw,460px);max-height:85vh;overflow:auto;text-align:center"><div style="font-size:46px" aria-hidden="true">✓</div><h2 id="obClientSuccessTitle">OrniAlleva è aggiornato!</h2><p id="obClientSuccessVersion"></p><h3>Ecco le novità di questa versione</h3><ul id="obClientSuccessNotes" style="text-align:left"></ul><button type="button" id="obClientSuccessClose">Continua su OrniAlleva</button></div></div>
 <div id="v1812NotifModal" class="v1812-notif-modal" aria-hidden="true">
   <div class="v1812-notif-card">
     <button id="v1812NotifClose" class="secondary v1812-notif-close" type="button">✕</button>
@@ -2620,8 +2621,21 @@ const FOTO_BUCKET="myagari-fot";
 const sezioni=["home","profilo","soggetti","coppie","riproduzione","genealogia","gabbie","alimentazione","calendario","salute","statistiche","registro","report","materiale_allevamento","guida","consigli_mostre","notifiche","contabilita","admin","standardFOI","aiValutazione"];
 const OB_CLIENT_VERSION="30.99.0";
 const OB_CLIENT_CHANNEL="production";
-const OB_CLIENT_TEST=false; // Versione Clienti: controlla solo release reali
+const OB_CLIENT_TEST=new URLSearchParams(location.search).get("ornialleva_test_update")==="1"; // Collaudo solo con link esplicito
 let obClientPending=null,obClientSnoozed="",obClientTimer=null,obClientBusy=false;
+const OB_CLIENT_DONE_KEY="ornialleva_post_update_details";
+function obClientCompletato(){
+ let row=null;try{row=JSON.parse(sessionStorage.getItem(OB_CLIENT_DONE_KEY)||"null");}catch(_){}
+ if(!row||!row.version)return;
+ try{sessionStorage.removeItem(OB_CLIENT_DONE_KEY);sessionStorage.removeItem("ornialleva_post_update");}catch(_){}
+ const box=$("obClientSuccess");if(!box)return;
+ $("obClientSuccessVersion").textContent="Versione "+row.version+" installata";
+ const list=$("obClientSuccessNotes");list.replaceChildren();
+ (Array.isArray(row.notes)?row.notes:[]).slice(0,8).forEach(note=>{const li=document.createElement("li");li.textContent=String(note);list.appendChild(li)});
+ box.classList.remove("hidden");
+ $("obClientSuccessClose").onclick=()=>box.classList.add("hidden");
+}
+
 function obClientNuova(v){
  const parse=x=>String(x||"").replace(/^v/i,"").split(".").map(Number);
  const a=parse(v),b=parse(OB_CLIENT_VERSION);
@@ -2688,13 +2702,15 @@ async function obClientInstalla(){
  if(OB_CLIENT_TEST){
   if(obClientSchedaAperta()){obClientSettings("Prima salva o chiudi la scheda aperta.");return;}
   $("obClientNotice").classList.add("hidden");
-  obClientPending=null;obClientSettings("Test completato: installazione simulata. Nessun dato modificato.");
+  const fake=obClientPending;obClientPending=null;obClientSettings("Test completato: installazione simulata. Nessun dato modificato.");
+  try{sessionStorage.setItem(OB_CLIENT_DONE_KEY,JSON.stringify(fake));}catch(_){}
+  obClientCompletato();
   return;
  }
  if(obClientSchedaAperta()){obClientSettings("Prima salva o chiudi la scheda aperta.");$("obClientNotice").classList.add("hidden");return;}
  const next=obClientUrl(obClientPending.update_url);if(!next)return;
  $("obClientNotice").classList.add("hidden");
- try{sessionStorage.setItem("ornialleva_post_update",obClientPending.version);}catch(_){}
+ try{sessionStorage.setItem("ornialleva_post_update",obClientPending.version);sessionStorage.setItem(OB_CLIENT_DONE_KEY,JSON.stringify({version:obClientPending.version,notes:obClientPending.notes,title:obClientPending.title}));}catch(_){}
  if(navigator.serviceWorker){
   try{
    const reg=await navigator.serviceWorker.getRegistration();
@@ -2710,6 +2726,7 @@ async function obClientInstalla(){
 function obClientAvvia(){
  if(!sessionUser?.id)return;
  obClientSettings();
+ obClientCompletato();
  if(!obClientTimer){
   obClientTimer=setInterval(()=>{void obClientControlla();},120000);
   document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")void obClientControlla()});

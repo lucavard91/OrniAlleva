@@ -2413,6 +2413,7 @@ html.ob-return-from-admin #obAdminReturnTransition,#obAdminReturnTransition.ob-t
   </div>
   <div id="v1812NotificheArchivio"></div>
 </section>
+<div id="obClientNotice" class="hidden" role="dialog" aria-modal="true" aria-labelledby="obClientTitle" style="position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:16px"><div class="card" style="width:min(94vw,460px);max-height:85vh;overflow:auto"><h2 id="obClientTitle">Aggiornamento disponibile</h2><p id="obClientVersion"></p><ul id="obClientNotes"></ul><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="secondary" type="button" id="obClientLater">Più tardi</button><button class="success" type="button" id="obClientNow">Aggiorna ora</button></div></div></div>
 <div id="v1812NotifModal" class="v1812-notif-modal" aria-hidden="true">
   <div class="v1812-notif-card">
     <button id="v1812NotifClose" class="secondary v1812-notif-close" type="button">✕</button>
@@ -2534,6 +2535,7 @@ html.ob-return-from-admin #obAdminReturnTransition,#obAdminReturnTransition.ob-t
     <button type="button" class="ob-settings-tile" data-page="impostazioni_reset"><img src="assets_embedded/assets_embedded/ob_asset_017_2f2c4643da.jpg" alt=""><span><strong>Reset / Elimina allevamento</strong><small>Gestisci i dati dell’allevamento attivo</small></span></button>
     <button type="button" class="ob-settings-tile" data-page="impostazioni_info"><img src="assets_embedded/assets_embedded/ob_asset_071_e2b7fbdddb.jpg" alt=""><span><strong>Informazioni app</strong><small>Versione, PWA e supporto</small></span></button>
   </div>
+<div class="card"><h3>Aggiornamenti OrniAlleva</h3><p id="obClientStatus">Versione 30.99.0 installata.</p><button type="button" id="obClientCheck" class="secondary">Controlla aggiornamenti</button> <button type="button" id="obClientSettingsUpdate" class="success hidden">Aggiorna ora</button></div>
 </section>
 <section id="impostazioni_profilo" class="hidden ob-setting-page">
   <div class="page-title"><h2 class="ob-icon-title"><img class="ob-section-icon" src="assets_embedded/assets_embedded/ob_asset_066_3415626407.jpg" alt=""><span>Profilo e allevamento</span></h2></div>
@@ -2615,6 +2617,110 @@ const SUPABASE_URL="https://mddsmqwfufzebahemxcn.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kZHNtcXdmdWZ6ZWJhaGVteGNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzOTMyMTksImV4cCI6MjEwMTk2OTIxOX0.UXzR227VZ1EBwq4fuGapZQen3ekGvGIzezfvJZbXojY";
 const FOTO_BUCKET="myagari-fot";
 const sezioni=["home","profilo","soggetti","coppie","riproduzione","genealogia","gabbie","alimentazione","calendario","salute","statistiche","registro","report","materiale_allevamento","guida","consigli_mostre","notifiche","contabilita","admin","standardFOI","aiValutazione"];
+const OB_CLIENT_VERSION="30.99.0";
+const OB_CLIENT_CHANNEL="production";
+const OB_CLIENT_TEST=false; // Versione Clienti: controlla solo release reali
+let obClientPending=null,obClientSnoozed="",obClientTimer=null,obClientBusy=false;
+function obClientNuova(v){
+ const parse=x=>String(x||"").replace(/^v/i,"").split(".").map(Number);
+ const a=parse(v),b=parse(OB_CLIENT_VERSION);
+ if(a.length!==3||b.length!==3||a.some(x=>!Number.isInteger(x))||b.some(x=>!Number.isInteger(x)))return false;
+ for(let i=0;i<3;i++)if(a[i]!==b[i])return a[i]>b[i];
+ return false;
+}
+function obClientUrl(u){
+ try{
+  const base=new URL("./",location.href),next=new URL(String(u||"./"),base);
+  return next.origin===base.origin&&next.pathname.startsWith(base.pathname)&&next.protocol==="https:"?next:null;
+ }catch(_){return null;}
+}
+function obClientSchedaAperta(){
+ return ["formSoggetto","formCoppia","formRiproduzione","formGabbia","formAlimentazione","formCalendario","formSalute"].some(id=>{
+  const e=$(id);return e&&!e.classList.contains("hidden")&&getComputedStyle(e).display!=="none";
+ });
+}
+function obClientMostra(row=obClientPending){
+ if(!row)return;
+ $("obClientVersion").textContent="Versione "+row.version+" disponibile";
+ $("obClientTitle").textContent=String(row.title||"Nuovo aggiornamento");
+ const notes=$("obClientNotes");notes.replaceChildren();
+ (Array.isArray(row.notes)?row.notes:[]).filter(x=>typeof x==="string").slice(0,8).forEach(x=>{
+  const li=document.createElement("li");li.textContent=x;notes.appendChild(li);
+ });
+ $("obClientNotice").classList.remove("hidden");
+}
+function obClientRinvia(){
+ obClientSnoozed=obClientPending?.version||"";$("obClientNotice").classList.add("hidden");
+ obClientSettings();
+}
+function obClientSettings(message=""){
+ const status=$("obClientStatus");if(!status)return;
+ status.textContent=message||(obClientPending?"Versione "+obClientPending.version+" disponibile.":"Versione "+OB_CLIENT_VERSION+" installata.");
+ $("obClientSettingsUpdate")?.classList.toggle("hidden",!obClientPending);
+}
+function obClientNotifica(row){
+ if(!sessionUser?.id||!allevamentoAttivo?.id)return;
+ const chiave="aggiornamento|production|"+row.version;
+ if(notifichePersonali.some(n=>n.chiave===chiave))return;
+ aggiungiNotificaPersonale({titolo:"Aggiornamento OrniAlleva disponibile",messaggio:"Versione "+row.version+" disponibile. Tocca per vedere novità e aggiornare.",tipo:"aggiornamento",chiave});
+ if(typeof v1812RenderNotifiche==="function")v1812RenderNotifiche();
+}
+async function obClientControlla(manuale=false){
+ if(obClientBusy||!sessionUser?.id||!sb||$("app")?.classList.contains("hidden")||(!manuale&&document.visibilityState==="hidden"))return;
+ obClientBusy=true;if(manuale)obClientSettings("Controllo aggiornamenti…");
+ try{
+  // Solo per il test manuale dal link dedicato: non scrive nel database e non installa nulla.
+  const fake=OB_CLIENT_TEST?{version:"30.99.1",title:"OrniAlleva — test aggiornamenti",notes:["Verifica dell'avviso all'apertura.","Verifica della campanella e di Più tardi.","Verifica del controllo dalle Impostazioni."],update_url:"./",active:true}:null;
+  const response=fake?{data:fake,error:null}:await sb.from("ob_app_releases").select("version,title,notes,update_url,active").eq("channel",OB_CLIENT_CHANNEL).eq("active",true).maybeSingle();
+  const {data,error}=response;
+  if(error)throw error;
+  if(!data||!obClientNuova(data.version)||!obClientUrl(data.update_url)){
+   obClientPending=null;$("obClientNotice")?.classList.add("hidden");obClientSettings("Nessun aggiornamento disponibile.");return;
+  }
+  obClientPending=data;obClientNotifica(data);obClientSettings();
+  if(!manuale&&obClientSnoozed!==data.version&&!obClientSchedaAperta())obClientMostra(data);
+ }catch(e){console.warn("OrniAlleva, controllo release",e);if(manuale)obClientSettings("Controllo non riuscito. Verifica la connessione o la configurazione degli aggiornamenti.");}
+ finally{obClientBusy=false;}
+}
+async function obClientInstalla(){
+ if(!obClientPending)return;
+ if(OB_CLIENT_TEST){
+  if(obClientSchedaAperta()){obClientSettings("Prima salva o chiudi la scheda aperta.");return;}
+  $("obClientNotice").classList.add("hidden");
+  obClientPending=null;obClientSettings("Test completato: installazione simulata. Nessun dato modificato.");
+  return;
+ }
+ if(obClientSchedaAperta()){obClientSettings("Prima salva o chiudi la scheda aperta.");$("obClientNotice").classList.add("hidden");return;}
+ const next=obClientUrl(obClientPending.update_url);if(!next)return;
+ $("obClientNotice").classList.add("hidden");
+ try{sessionStorage.setItem("ornialleva_post_update",obClientPending.version);}catch(_){}
+ if(navigator.serviceWorker){
+  try{
+   const reg=await navigator.serviceWorker.getRegistration();
+   if(reg){
+    await reg.update();
+    if(reg.waiting)reg.waiting.postMessage({type:"ORNIALLEVA_INSTALL_APPROVED"});
+   }
+  }catch(e){console.warn("Aggiornamento SW differito",e);}
+ }
+ next.searchParams.set("ornialleva_update",Date.now().toString());
+ location.assign(next.href);
+}
+function obClientAvvia(){
+ if(!sessionUser?.id)return;
+ obClientSettings();
+ if(!obClientTimer){
+  obClientTimer=setInterval(()=>{void obClientControlla();},120000);
+  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")void obClientControlla()});
+  window.addEventListener("focus",()=>{void obClientControlla()});
+  $("obClientCheck")?.addEventListener("click",()=>{void obClientControlla(true)});
+  $("obClientSettingsUpdate")?.addEventListener("click",()=>obClientMostra());
+  $("obClientLater")?.addEventListener("click",obClientRinvia);
+  $("obClientNow")?.addEventListener("click",()=>{void obClientInstalla()});
+ }
+ void obClientControlla();
+}
+
 let sb=null;
 let profilo=null;
 let allevamentoAttivo=null;
@@ -3424,6 +3530,7 @@ async function mostraApp(){
     toggle("registerScreen",false);
     toggle("resetScreen",false);
     toggle("app",true);
+    setTimeout(obClientAvvia,800);
     try{document.documentElement.classList.remove("ob-return-from-admin");const t=document.getElementById("obAdminReturnTransition");if(t)t.style.display="none";if(location.search.includes("from=admin"))history.replaceState(null,"",location.pathname+location.hash);}catch(_){}
     const u=await utenteCorrente();
     const nomeCompleto=[

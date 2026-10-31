@@ -2991,6 +2991,7 @@ function aggiornaSelettoreAllevamento(lista){
     select.innerHTML=elenco.map(a=>`<option value="${esc(a.id)}" ${String(a.id)===String(allevamentoAttivo.id)?"selected":""}>${esc(a.nome)}</option>`).join("");
     select.onchange=()=>cambiaAllevamento(select.value,elenco);
   }
+  obAggiornaProfiloAllevamento();
   const btnAdd=$("btnAggiungiAllevamento");
   if(btnAdd)btnAdd.onclick=aggiungiAllevamento;
   const btnRename=$("btnRinominaAllevamento");
@@ -3044,6 +3045,10 @@ async function cambiaAllevamento(id,lista){
   const scelto=(lista||[]).find(a=>String(a.id)===String(id)); if(!scelto||String(scelto.id)===String(allevamentoAttivo?.id||""))return;
   const inizio=Date.now();
   mostraCaricamentoAllevamento(scelto.nome||"allevamento");
+  const pannello=document.getElementById("obV439FarmPopup");
+  const pulsante=document.getElementById("obV439FarmToggle");
+  pannello?.classList.remove("open");
+  if(pulsante){pulsante.classList.remove("open");pulsante.setAttribute("aria-expanded","false");}
   const timer=setTimeout(()=>{nascondiCaricamentoAllevamento();obAvviso("⚠️ Il cambio allevamento sta impiegando troppo tempo. Riprova.");},10000);
   try{
     const u=await utenteCorrente();

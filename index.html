@@ -1553,6 +1553,7 @@ html.ob-return-from-admin #obAdminReturnTransition,#obAdminReturnTransition.ob-t
       <button id="v252ToggleLoginPassword" class="v1817-password-eye" type="button"
         aria-label="Mostra password" title="Mostra password" onclick="return v252ToggleLoginPassword(event)">👁️</button>
     </div>
+    <label for="obStaySignedIn" style="display:flex;align-items:center;gap:9px;justify-content:flex-start;margin:12px 0;font-size:15px"><input id="obStaySignedIn" type="checkbox" style="width:20px;height:20px;flex:0 0 20px"> Resta collegato</label>
     <button id="btnLogin">Accedi</button>
     <button id="obGuestLogin" type="button" class="secondary">Entra come ospite</button>
     <button id="btnPhoneLogin" class="secondary" type="button">📱 Accedi con telefono</button>
@@ -3476,6 +3477,7 @@ async function loginSupabase(){
         : "Il tuo accesso non è attivo o è scaduto.");
       return;
     }
+    obSetStaySignedIn(!!$("obStaySignedIn")?.checked);
     await avviaMostraApp();
   }catch(e){msg("Errore durante l'accesso: "+(e?.message||e));}
 }
@@ -3656,6 +3658,7 @@ async function aggiornaPassword(){
 async function logout(){
   if(window.__obGuestMode){try{localStorage.removeItem("ob_intro_hide_v1_"+String(sessionUser?.id||"guest"));}catch(_){}}
   if(!await obConfermaCestino({titolo:"Uscire da OrniBreed Manager?",testo:"Vuoi davvero uscire dall’applicazione?",annulla:"Annulla",conferma:"Esci"}))return;
+  obSetStaySignedIn(false);
   obV2630AzzeraRuntimeAutenticato();
   try{localStorage.removeItem(chiaveStatoNavigazione());localStorage.setItem("ornibreed_force_home_after_logout","1");}catch(e){}
   window.__MYAGARI_FRESH_LOGIN=false;
@@ -7515,6 +7518,9 @@ function mostraResetDaHash(){
 /* ===== OrniBreed Manager V26.30 — sessione runtime ===== */
 const OB_V2630_RUNTIME_AUTH_KEY="ornibreed_runtime_authenticated_v2630";
 function obV2630RuntimeAutenticato(){try{return sessionStorage.getItem(OB_V2630_RUNTIME_AUTH_KEY)==="1";}catch(_){return false;}}
+const OB_STAY_SIGNED_KEY="ornialleva_stay_signed_in_v1";
+function obStaySignedIn(){try{return localStorage.getItem(OB_STAY_SIGNED_KEY)==="1";}catch(_){return false;}}
+function obSetStaySignedIn(yes){try{if(yes)localStorage.setItem(OB_STAY_SIGNED_KEY,"1");else localStorage.removeItem(OB_STAY_SIGNED_KEY);}catch(_){}}
 function obV2630SegnaRuntimeAutenticato(){try{sessionStorage.setItem(OB_V2630_RUNTIME_AUTH_KEY,"1");}catch(_){}}
 function obV2630AzzeraRuntimeAutenticato(){try{sessionStorage.removeItem(OB_V2630_RUNTIME_AUTH_KEY);}catch(_){}}
 function obV2630PulisciNavigazionePrecedente(){try{const remove=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith("myagari_nav_state_"))remove.push(k);}remove.forEach(k=>localStorage.removeItem(k));}catch(e){console.warn("Pulizia navigazione precedente non disponibile",e);}}
@@ -7533,7 +7539,7 @@ async function obV2630RichiediLoginSuNuovaApertura(){
       return false;
     }
   }catch(_){}
-  if(obV2630RuntimeAutenticato())return false;
+  if(obV2630RuntimeAutenticato()||obStaySignedIn())return false;
   try{const {data}=await sb.auth.getSession();if(data?.session){try{await sb.auth.signOut({scope:"local"});}catch(_){try{await sb.auth.signOut();}catch(__){}}}}catch(e){console.warn("Controllo sessione precedente",e);}
   sessionUser=null;profilo=null;obV2630PulisciNavigazionePrecedente();
   toggle("app",false);toggle("registerScreen",false);toggle("recoverAccountScreen",false);toggle("resetScreen",false);toggle("loginScreen",true);return true;
@@ -7545,6 +7551,7 @@ async function init(){
   if(!window.supabase||typeof window.supabase.createClient!=="function")throw new Error("Libreria Supabase non caricata.");
   sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
   bindUI();
+  if($("obStaySignedIn"))$("obStaySignedIn").checked=obStaySignedIn();
   if(mostraResetDaHash())return;
   // Se è presente una prova locale ancora valida e non esiste una sessione
   // reale, riprende le 12 ore senza creare un account Supabase.

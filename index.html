@@ -3063,6 +3063,8 @@ async function cambiaAllevamento(id,lista){
     await v18CaricaProfiloUI();
     obAggiornaProfiloAllevamento();
     requestAnimationFrame(()=>obAggiornaProfiloAllevamento());
+    pannello?.classList.remove("open");
+    if(pulsante){pulsante.classList.remove("open");pulsante.setAttribute("aria-expanded","false");}
     const trascorso=Date.now()-inizio, durataMinima=700;
     if(trascorso<durataMinima)await new Promise(r=>setTimeout(r,durataMinima-trascorso));
   }catch(e){errore(e);}finally{clearTimeout(timer);nascondiCaricamentoAllevamento();}

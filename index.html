@@ -1554,6 +1554,7 @@ html.ob-return-from-admin #obAdminReturnTransition,#obAdminReturnTransition.ob-t
         aria-label="Mostra password" title="Mostra password" onclick="return v252ToggleLoginPassword(event)">👁️</button>
     </div>
     <button id="btnLogin">Accedi</button>
+    <button id="obGuestLogin" type="button" class="secondary">Entra come ospite</button>
     <button id="btnPhoneLogin" class="secondary" type="button">📱 Accedi con telefono</button>
     <button id="btnRegister" class="secondary">Registrati</button>
     <button id="btnRecovery" class="secondary">Password dimenticata?</button>
@@ -2608,6 +2609,8 @@ html.ob-return-from-admin #obAdminReturnTransition,#obAdminReturnTransition.ob-t
 
 </div>
 </div>
+<script src="./guest-local.js?v=20261031"></script>
+<script src="./guest-catalog.js?v=20261031"></script>
 <script>
 "use strict";
 // OrniBreed Manager — struttura consolidata v1.0
@@ -2821,6 +2824,7 @@ function obRuoloAdminValido(r){return ["admin","admin_principale","proprietario"
 function obRuoloProprietario(r){return String(r||"").toLowerCase()==="proprietario";}
 function obRuoloAdminPrincipale(r){return ["admin_principale","proprietario"].includes(String(r||"").toLowerCase());}
 function accessoValido(){
+  if(window.__obGuestMode)return !!window.__obGuestExpiry && Date.now()<window.__obGuestExpiry;
   if(!profilo||profilo.attivo!==true)return false;
   if(profilo.illimitato===true)return true;
   if(!profilo.scadenza)return false;
@@ -2849,6 +2853,7 @@ async function utenteCorrente(){
   throw ultimoErrore||new Error("Utente non autenticato.");
 }
 async function caricaProfilo(){
+  if(window.__obGuestMode){profilo={user_id:sessionUser?.id,nome:"OrniAlleva",cognome:"Ospite",attivo:true,illimitato:false,ruolo:"ospite",scadenza:new Date(window.__obGuestExpiry).toISOString().slice(0,10)};return profilo;}
   const u=await utenteCorrente();
   const {data,error}=await sb.from("profili_utenti").select("*").eq("user_id",u.id).maybeSingle();
   if(error)throw error;
@@ -3320,6 +3325,106 @@ async function apriPagina(nome,opzioni={}){
     }
   }
 }
+/* V34.19 - Accesso ospite sperimentale: solo sviluppo. */
+window.__obGuestMode=false;
+window.__obGuestBooting=false;
+window.__obGuestExpiry=0;
+let obGuestTimer=null;
+function obGuestStopClock(){if(obGuestTimer){clearInterval(obGuestTimer);obGuestTimer=null;}}
+async function obGuestResume(session){
+  if(!session?.user?.is_anonymous)return;
+  if(window.__obGuestBooting)return;
+  window.__obGuestBooting=true;
+  try{
+    const {data,error}=await sb.from("ob_guest_sessions").select("expires_at").eq("user_id",session.user.id).maybeSingle();
+    if(error||!data)throw new Error("Sessione ospite non disponibile");
+    const expiry=new Date(data.expires_at).getTime();
+    if(!Number.isFinite(expiry)||expiry<=Date.now())throw new Error("Le 12 ore di prova sono terminate");
+    window.__obGuestMode=true;window.__obGuestExpiry=expiry;sessionUser=session.user;
+    await avviaMostraApp(session);
+  }catch(e){window.__obGuestMode=false;await sb.auth.signOut();msg(e.message||String(e));toggle("loginScreen",true);}
+  finally{window.__obGuestBooting=false;}
+}
+/* Accesso ospite di sviluppo: evitare richieste anonime al database ufficiale.
+ * Il collaudo separato e verificato rimane raggiungibile finché lo schema
+ * del gestionale non è stato replicato e protetto nel progetto dedicato.
+ */
+/* Collaudo OSPITE LOCALE: tutte le query app passano all'archivio
+ * temporaneo nel browser, nessun accesso anonimo al Supabase ufficiale.
+ */
+function obGuestApplyCatalog(){
+  if(!window.__obGuestMode || !window.obGuestLocal?.isLocalDemo)return;
+  const C=window.OB_CATALOG;
+  const S=window.OB_GUEST_CATALOG_STATIC;
+  if(!C||!S)return;
+  ["taxa","breeds","mutations","phenotypes","variants","standards","globalCatalog"]
+    .forEach(k=>{C[k]=Array.isArray(S[k])?S[k].map(row=>({...row})):[];});
+  if(typeof v19ManualCatalog!=="undefined"){
+    v19ManualCatalog.taxa=C.taxa;
+    v19ManualCatalog.breeds=C.breeds;
+    v19ManualCatalog.mutations=C.mutations;
+  }
+  window.OB_CATALOG_HELPERS?.refreshSubjectCategory?.(
+    document.getElementById("s_razza")?.value||""
+  );
+}
+async function obGuestLogin(){
+  if(window.__obGuestBooting)return;
+  window.__obGuestBooting=true;
+  const previousClient=sb;
+  try{
+    if(!window.obGuestLocal)throw new Error("Modulo ospite non caricato: aggiorna la pagina.");
+    const real=await previousClient.auth.getSession();
+    if(real.data?.session?.user && !real.data.session.user.is_anonymous){
+      throw new Error("Per entrare come ospite devi prima uscire dal tuo account.");
+    }
+    const demo=window.obGuestLocal.enter();
+    sb=demo.client;
+    window.__obGuestMode=true;
+    window.__obGuestExpiry=demo.expiresAt;
+    sessionUser=demo.session.user;
+    window.__MYAGARI_FRESH_LOGIN=true;
+    obGuestDisableExports();
+    obGuestApplyCatalog();
+    await avviaMostraApp(demo.session);
+  }catch(e){
+    if(!window.__obGuestMode)sb=previousClient;
+    msg("Accesso ospite: "+(e?.message||String(e)));
+    console.error("[OrniBreed ospite locale]",e);
+  }finally{window.__obGuestBooting=false;}
+}
+function obGuestDisableExports(){
+  if(!window.__obGuestMode)return;
+  window.print=function(){alert("Stampa non disponibile nella prova ospite.");};
+  window.open=function(){alert("Stampa ed esportazione non disponibili nella prova ospite.");return null;};
+}
+function obGuestStartClock(){
+  obGuestStopClock();
+  let box=document.getElementById("obGuestCountdown");
+  if(!box){box=document.createElement("div");box.id="obGuestCountdown";box.setAttribute("role","status");box.style.cssText="position:sticky;top:0;z-index:999;background:#fff3cc;color:#392900;padding:12px;text-align:center;font-weight:700;border:2px solid #d9a800;border-radius:10px";const app=document.getElementById("app");if(app)app.prepend(box);}
+  const tick=async()=>{
+    if(!window.__obGuestMode){obGuestStopClock();box.remove();return;}
+    const ms=Math.max(0,window.__obGuestExpiry-Date.now());
+    const h=Math.floor(ms/3600000),m=Math.floor(ms%3600000/60000),s=Math.floor(ms%60000/1000);
+    box.textContent="Modalità ospite (prova locale) · Tempo rimasto: "+[h,m,s].map(v=>String(v).padStart(2,"0")).join(":")+" · Stampa e PDF disabilitati";
+    if(ms===0){obGuestStopClock();window.__obGuestMode=false;await sb.auth.signOut();alert("La sessione ospite è terminata.");location.reload();}
+  };
+  void tick();obGuestTimer=setInterval(tick,1000);
+}
+// Il blocco è aggiuntivo: va verificato su tutti i percorsi di stampa/esportazione.
+document.addEventListener("click",e=>{
+ if(!window.__obGuestMode)return;
+ const target=e.target?.closest?.("button,a,[data-page]");if(!target)return;
+ const id=String(target.id||"").toLowerCase();
+ const label=String(target.textContent||"").toLowerCase();
+ const page=String(target.dataset?.page||"").toLowerCase();
+ if(/admin|partner|pagament|abbonament|export|pdf|print|stampa|scarica|report|materiale/.test(id+" "+label+" "+page)){
+   e.preventDefault();e.stopImmediatePropagation();alert("Funzione non disponibile nella prova ospite.");
+ }
+},true);
+window.addEventListener("beforeprint",e=>{if(window.__obGuestMode){e.preventDefault();alert("Stampa non disponibile per gli ospiti.");}});
+
+
 async function loginSupabase(){
   const identificatore=valore("loginEmail"),password=$("loginPassword").value;
   if(!identificatore||!password){msg("Inserisci email o nome utente e password.");return;}
@@ -3531,6 +3636,7 @@ async function aggiornaPassword(){
   }catch(e){resetMsg(e?.message||e);}
 }
 async function logout(){
+  if(window.__obGuestMode){try{localStorage.removeItem("ob_intro_hide_v1_"+String(sessionUser?.id||"guest"));}catch(_){}}
   if(!await obConfermaCestino({titolo:"Uscire da OrniBreed Manager?",testo:"Vuoi davvero uscire dall’applicazione?",annulla:"Annulla",conferma:"Esci"}))return;
   obV2630AzzeraRuntimeAutenticato();
   try{localStorage.removeItem(chiaveStatoNavigazione());localStorage.setItem("ornibreed_force_home_after_logout","1");}catch(e){}
@@ -3558,9 +3664,7 @@ async function mostraApp(){
     await caricaAllevamenti();
     await inizializzaNotifichePersonali();
     await caricaProfilo();
-    v19AggiornaNotificheScadenza();
-    await completaAvvioNotifichePersonali();
-    v1812PromemoriaGiornaliero();
+    if(window.__obGuestMode){await completaAvvioNotificheOspite();}else{v19AggiornaNotificheScadenza();await completaAvvioNotifichePersonali();v1812PromemoriaGiornaliero();}
     if(!accessoValido()&&!obRuoloAdminValido(profilo.ruolo)){
       msg("Il tuo accesso non è attivo o è scaduto.");
       return;
@@ -3587,6 +3691,7 @@ async function mostraApp(){
           (rna?"<br>RNA: "+esc(rna):"")
         : "Account: "+esc(u.email||"utente");
     mostraStatoAccount();
+    if(window.__obGuestMode)obGuestStartClock();
     /*
      * Mostra il modulo profilo solo al primo accesso,
      * quando Nome e Cognome non sono ancora presenti.
@@ -6744,6 +6849,19 @@ async function completaAvvioNotifichePersonali(){
 }
 // V30.91.16: il badge Amministrazione della Home legge le richieste reali in attesa da Supabase.
 // Nessun conteggio locale viene mostrato prima della risposta del database.
+async function completaAvvioNotificheOspite(){
+  // L’ospite usa solo il proprio archivio temporaneo: mai sincronizzare stati con Supabase.
+  notifichePersonaliSincronizzate=false;
+  aggiornaUINotifichePersonali();
+  try{
+    await aggiornaNotificheCalendario();
+    await aggiornaNotificheRiproduzione();
+  }finally{
+    notifichePersonaliSincronizzate=true;
+    aggiornaUINotifichePersonali();
+  }
+}
+
 async function aggiornaNotificheAdmin(){
   const badge=$("adminNotificationBadge");
   if(badge){ badge.textContent=""; badge.style.display="none"; }
@@ -7289,6 +7407,7 @@ box.innerHTML = `
 function bindUI(){
  // V24.1: bind authentication first; unrelated UI errors must never disable access.
  if($("btnLogin"))$("btnLogin").onclick=loginSupabase;
+ if($("obGuestLogin"))$("obGuestLogin").onclick=obGuestLogin;
  if($("btnPhoneLogin"))$("btnPhoneLogin").onclick=mostraAccessoTelefono;
  if($("btnPhoneSendOtp"))$("btnPhoneSendOtp").onclick=inviaOtpTelefono;
  if($("btnPhoneVerifyOtp"))$("btnPhoneVerifyOtp").onclick=verificaOtpTelefono;
@@ -7409,16 +7528,37 @@ async function init(){
   sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
   bindUI();
   if(mostraResetDaHash())return;
+  // Se è presente una prova locale ancora valida e non esiste una sessione
+  // reale, riprende le 12 ore senza creare un account Supabase.
+  if(window.obGuestLocal?.hasActive()){
+    const realSession=await sb.auth.getSession();
+    if(!realSession.data?.session?.user){
+      const demo=window.obGuestLocal.enter();
+      sb=demo.client;
+      window.__obGuestMode=true;
+      window.__obGuestExpiry=demo.expiresAt;
+      sessionUser=demo.session.user;
+      window.__MYAGARI_FRESH_LOGIN=true;
+      obGuestDisableExports();
+      obGuestApplyCatalog();
+      await avviaMostraApp(demo.session);
+      return;
+    }
+  }
   if(await obV2630RichiediLoginSuNuovaApertura())return;
   sb.auth.onAuthStateChange((event,session)=>{
    sessionUser=session?.user||null;
    if(event==="PASSWORD_RECOVERY"){toggle("loginScreen",false);toggle("app",false);toggle("resetScreen",true);return;}
-   if(session && (event==="INITIAL_SESSION" || event==="SIGNED_IN" || event==="TOKEN_REFRESHED" || event==="USER_UPDATED"))void avviaMostraApp(session);
+   if(session && (event==="INITIAL_SESSION" || event==="SIGNED_IN" || event==="TOKEN_REFRESHED" || event==="USER_UPDATED")){
+     if(window.__obGuestBooting)return;
+     if(session.user?.is_anonymous){void obGuestResume(session);return;}
+     void avviaMostraApp(session);
+   }
    if(event==="SIGNED_OUT"){toggle("app",false);toggle("loginScreen",true);}
   });
   const {data,error}=await sb.auth.getSession();
   if(error){msg(error.message);return;}
-  if(data.session)await avviaMostraApp(data.session);
+  if(data.session){if(data.session.user?.is_anonymous)await obGuestResume(data.session);else await avviaMostraApp(data.session);}
   else{
     try{document.documentElement.classList.remove("ob-return-from-admin");}catch(_){}
     let refPartner="";

@@ -8195,6 +8195,21 @@ async function v194AggiornaProfiloDrawer(){
 }
 async function v18CaricaProfiloUI(){
   try{
+    // Mostra subito la foto gia' autorizzata e memorizzata, senza attendere una nuova richiesta.
+    const fotoIniziale=profilo?.foto_profilo_url||sessionUser?.user_metadata?.foto_profilo_url||"";
+    if(fotoIniziale){
+      let urlImmediato="";
+      try{
+        const cache=JSON.parse(localStorage.getItem(obProfileCacheKey(fotoIniziale))||"null");
+        if(cache?.url&&Number(cache.expiresAt||0)>Date.now()+5*60*1000)urlImmediato=cache.url;
+      }catch(_){}
+      if(urlImmediato){
+        const html=obProfileImg(urlImmediato);
+        ["profiloAvatarHomeV18","profiloAvatarV18","v19DrawerProfileAvatar"].forEach(id=>{
+          const nodo=$(id);if(nodo)nodo.innerHTML=html;
+        });
+      }
+    }
     const u=await utenteCorrente();
     if($("profiloEmailV18"))$("profiloEmailV18").value=u?.email||profilo?.email||"";
     if($("profiloNome"))$("profiloNome").value=profilo?.nome||u?.user_metadata?.nome||"";

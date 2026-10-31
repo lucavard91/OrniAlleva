@@ -2627,6 +2627,7 @@ const OB_CLIENT_DONE_KEY="ornialleva_post_update_details";
 function obClientCompletato(){
  let row=null;try{row=JSON.parse(sessionStorage.getItem(OB_CLIENT_DONE_KEY)||"null");}catch(_){}
  if(!row||!row.version)return;
+ if(!OB_CLIENT_TEST && row.version!==OB_CLIENT_VERSION)return;
  try{sessionStorage.removeItem(OB_CLIENT_DONE_KEY);sessionStorage.removeItem("ornialleva_post_update");}catch(_){}
  const box=$("obClientSuccess");if(!box)return;
  $("obClientSuccessVersion").textContent="Versione "+row.version+" installata";

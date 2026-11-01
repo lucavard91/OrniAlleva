@@ -3669,7 +3669,7 @@ async function aggiornaPassword(){
     setTimeout(()=>{toggle("resetScreen",false);toggle("loginScreen",true);},1500);
   }catch(e){resetMsg(e?.message||e);}
 }
-function obEseguiDisconnessioneAccount(){
+async function obEseguiDisconnessioneAccount(){
   if(window.__obGuestMode){try{localStorage.removeItem("ob_intro_hide_v1_"+String(sessionUser?.id||"guest"));localStorage.removeItem("ob_mostra_v1_"+String(sessionUser?.id||"")+"_"+String(allevamentoAttivo?.id||"nessuno"));}catch(_){}}
   obSetStaySignedIn(false);
   obV2630AzzeraRuntimeAutenticato();

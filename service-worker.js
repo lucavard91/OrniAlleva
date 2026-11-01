@@ -1,4 +1,4 @@
-const OB_CACHE = "ornialleva-clienti-v30-99-1-20261101";
+const OB_CACHE = "ornialleva-clienti-v30-99-1-hotfix-login-20261101";
 const OB_STATIC = [
   "./",
   "./manifest.webmanifest",

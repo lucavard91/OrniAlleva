@@ -724,7 +724,7 @@ html:has(body.ob-catalog-locked){overflow:hidden!important}body.ob-catalog-locke
   width:100%;
   height:clamp(118px,15.625vw,300px);
   padding:0;
-  background:#043329 url("01_header_top.png") center center / cover no-repeat;
+  background:#043329 url("https://lucavard91.github.io/OrniAlleva-Sviluppo/OrniAlleva_Banner_Interno.png?v=20261101") center center / cover no-repeat;
   border-bottom:2px solid #c8953d;
   box-shadow:0 8px 24px rgba(0,0,0,.16)
 }
@@ -784,7 +784,7 @@ html:has(body.ob-catalog-locked){overflow:hidden!important}body.ob-catalog-locke
 </style>
 <style id="ob-clean-v266-css">
 :root{--ob-bg-mask:.82}
-#app{background-image:linear-gradient(rgba(255,255,255,var(--ob-bg-mask)),rgba(255,255,255,var(--ob-bg-mask))),url("assets_embedded/assets_embedded/ob_asset_001_d8fb129ced.jpg");background-size:cover;background-position:center top;background-attachment:fixed;min-height:100vh}
+#app{background-image:linear-gradient(rgba(255,255,255,var(--ob-bg-mask)),rgba(255,255,255,var(--ob-bg-mask))),url("https://lucavard91.github.io/OrniAlleva-Sviluppo/OrniAlleva_Sfondo_Natura.png?v=20261101");background-size:cover;background-position:center top;background-attachment:fixed;min-height:100vh}
 #app>.container{background:transparent}
 .v18-topbar{position:relative!important;top:auto!important;transform:none!important}
 body.ob-drawer-open{overflow:hidden!important}
@@ -825,7 +825,7 @@ body.ob-drawer-open{overflow:hidden!important}
 </style>
 <style id="ob-clean-lang-css">#v18Drawer [data-v251-lang],#v18Drawer .v251-drawer-language,#v18Drawer .v251-language-item{display:none!important}</style>
 <style id="ob-v267-visual-css">
-#app{background-image:linear-gradient(rgba(255,255,255,.70),rgba(255,255,255,.70)),url("assets_embedded/assets_embedded/ob_asset_002_4e6d4cf6c9.jpg")!important;background-size:cover!important;background-position:center top!important;background-attachment:fixed!important;background-repeat:no-repeat!important}
+#app{background-image:linear-gradient(rgba(255,255,255,.70),rgba(255,255,255,.70)),url("https://lucavard91.github.io/OrniAlleva-Sviluppo/OrniAlleva_Sfondo_Natura.png?v=20261101")!important;background-size:cover!important;background-position:center top!important;background-attachment:fixed!important;background-repeat:no-repeat!important}
 #obBgRange,#obBgValue,#obBgLevel,.ob-range-row{display:none!important}
 .ob-photo-action{position:relative;display:inline-flex!important;align-items:center;justify-content:center;gap:5px}
 .ob-photo-action>img{width:32px;height:32px;object-fit:cover;border-radius:9px;display:block}
@@ -940,7 +940,7 @@ button.ob-action-home::before,.back[data-page="home"]::before{background-image:u
 .ob-account-status-card{
   position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;
   padding:13px 15px;border-radius:16px;border:1px solid rgba(190,145,45,.55);
-  background-image:linear-gradient(90deg,rgba(246,252,247,.90),rgba(236,248,239,.78)),url("assets_embedded/assets_embedded/ob_asset_001_d8fb129ced.jpg");
+  background-image:linear-gradient(90deg,rgba(246,252,247,.90),rgba(236,248,239,.78)),url("https://lucavard91.github.io/OrniAlleva-Sviluppo/OrniAlleva_Sfondo_Natura.png?v=20261101");
   background-size:cover;background-position:center;box-shadow:0 5px 16px rgba(28,70,47,.10)
 }
 .ob-account-role-icon{width:52px;height:52px;flex:0 0 52px;object-fit:cover;border-radius:13px;border:1px solid rgba(197,151,48,.6);box-shadow:0 2px 8px rgba(0,0,0,.16)}
@@ -2621,7 +2621,9 @@ const SUPABASE_URL="https://mddsmqwfufzebahemxcn.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kZHNtcXdmdWZ6ZWJhaGVteGNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzOTMyMTksImV4cCI6MjEwMTk2OTIxOX0.UXzR227VZ1EBwq4fuGapZQen3ekGvGIzezfvJZbXojY";
 const FOTO_BUCKET="myagari-fot";
 const sezioni=["home","profilo","soggetti","coppie","riproduzione","genealogia","gabbie","alimentazione","calendario","salute","statistiche","registro","report","materiale_allevamento","guida","consigli_mostre","notifiche","contabilita","admin","standardFOI","aiValutazione"];
-const OB_CLIENT_VERSION="30.99.1";
+const OB_CLIENT_VERSION="30.99.2";
+const OB_CLIENT_INSTALLED_KEY="ornialleva_clienti_installed_version";
+function obClientInstalledVersion(){try{return localStorage.getItem(OB_CLIENT_INSTALLED_KEY)||"30.99.1";}catch(_){return "30.99.1";}}
 const OB_CLIENT_CHANNEL="production";
 const OB_CLIENT_TEST=new URLSearchParams(location.search).get("ornialleva_test_update")==="1"; // Collaudo solo con link esplicito
 let obClientPending=null,obClientSnoozed="",obClientTimer=null,obClientBusy=false;
@@ -2641,7 +2643,7 @@ function obClientCompletato(){
 
 function obClientNuova(v){
  const parse=x=>String(x||"").replace(/^v/i,"").split(".").map(Number);
- const a=parse(v),b=parse(OB_CLIENT_VERSION);
+ const a=parse(v),b=parse(obClientInstalledVersion());
  if(a.length!==3||b.length!==3||a.some(x=>!Number.isInteger(x))||b.some(x=>!Number.isInteger(x)))return false;
  for(let i=0;i<3;i++)if(a[i]!==b[i])return a[i]>b[i];
  return false;
@@ -2731,7 +2733,8 @@ async function obClientInstalla(){
     }
    }catch(e){console.warn("Aggiornamento SW differito",e);}
   }
-  next.searchParams.set("ornialleva_update",Date.now().toString());
+  try{localStorage.setItem(OB_CLIENT_INSTALLED_KEY,row.version);}catch(_){}
+   next.searchParams.set("ornialleva_update",Date.now().toString());
   location.assign(next.href);
  }catch(e){
   console.warn("Aggiornamento non riuscito",e);
@@ -9232,7 +9235,7 @@ async function v186PdfFormato(titolo,html,orientamento="portrait",formato="A4"){
 let v18InstallPrompt=null;
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();v18InstallPrompt=e;$("v18InstallBtn")?.classList.remove("hidden");});
 async function v18Installa(){if(!v18InstallPrompt){obAvviso("Se l'installazione non viene proposta automaticamente, usa il menu del browser e scegli “Aggiungi a schermata Home” / “Installa app”.");return;}v18InstallPrompt.prompt();await v18InstallPrompt.userChoice;v18InstallPrompt=null;$("v18InstallBtn")?.classList.add("hidden");}
-if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("service-worker.js?v=30991refresh20261101",{scope:"./",updateViaCache:"none"});reg.update().catch(()=>{});}catch(e){console.warn("Service worker",e);}});}
+if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("service-worker.js?v=30992newvisual20261101",{scope:"./",updateViaCache:"none"});reg.update().catch(()=>{});}catch(e){console.warn("Service worker",e);}});}
 function v18Init(){
   v1811InitLingua();
   $("v18MenuBtn")?.addEventListener("click",v18ApriDrawer);$("v18DrawerClose")?.addEventListener("click",v18ChiudiDrawer);$("v18DrawerBackdrop")?.addEventListener("click",v18ChiudiDrawer);$("v18PremiumClose")?.addEventListener("click",v18ChiudiPremium);$("v18InstallBtn")?.addEventListener("click",v18Installa);
@@ -12596,14 +12599,14 @@ table{max-width:100%}
 /* ---------- HEADER PULITO ---------- */
 .ob-v263727-legacy-hidden{display:none!important}
 .v263-app-header.ob-v263727-header{
-  position:relative!important;width:100%!important;height:92px!important;min-height:92px!important;
+  position:relative!important;width:100%!important;height:clamp(170px,calc(33.333vw + 64px),320px)!important;min-height:170px!important;
   padding:0!important;overflow:visible!important;
-  background:#043329 url("01_header_top.png") center center / cover no-repeat!important;
+  background:#043329 url("https://lucavard91.github.io/OrniAlleva-Sviluppo/OrniAlleva_Banner_Interno.png?v=20261101") center top / 100% auto no-repeat!important;
   border-bottom:2px solid #c8953d!important;box-shadow:0 5px 16px rgba(0,0,0,.15)!important;z-index:50!important
 }
 .v263-app-header.ob-v263727-header .v263-app-brand{display:none!important}
 .ob-v263727-menu-wrap{
-  position:absolute!important;left:10px!important;top:50%!important;transform:translateY(-50%)!important;
+  position:absolute!important;left:10px!important;top:auto!important;bottom:8px!important;transform:none!important;
   z-index:6!important;display:flex!important;flex-direction:column!important;align-items:center!important;gap:1px!important
 }
 .ob-v263727-menu-label{
@@ -12611,7 +12614,7 @@ table{max-width:100%}
   text-shadow:0 1px 3px #000!important
 }
 .ob-v263727-actions-wrap{
-  position:absolute!important;right:10px!important;top:50%!important;transform:translateY(-50%)!important;z-index:7!important
+  position:absolute!important;right:10px!important;top:auto!important;bottom:8px!important;transform:none!important;z-index:7!important
 }
 .ob-v263727-actions-wrap .v1820-home-actions{
   display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:12px!important;margin:0!important;padding:0!important
@@ -12728,7 +12731,7 @@ table{max-width:100%}
 }
 /* ---------- TABLET ---------- */
 @media(max-width:900px){
-  .v263-app-header.ob-v263727-header{height:76px!important;min-height:76px!important}
+  .v263-app-header.ob-v263727-header{height:calc(33.333vw + 64px)!important;min-height:170px!important}
   .ob-v263727-menu-wrap{left:6px!important}
   .ob-v263727-actions-wrap{right:6px!important}
   .ob-v263727-actions-wrap .v1820-home-actions{gap:3px!important}
@@ -12745,7 +12748,7 @@ table{max-width:100%}
 }
 /* ---------- iPHONE / ANDROID ---------- */
 @media(max-width:700px){
-  .v263-app-header.ob-v263727-header{height:82px!important;min-height:82px!important;background-position:center!important}
+  .v263-app-header.ob-v263727-header{height:calc(33.333vw + 58px)!important;min-height:0!important;background-position:center top!important}
   .ob-v263727-menu-wrap{left:5px!important}
   .ob-v263727-menu-label{font-size:9px!important}
   .ob-v263727-actions-wrap{right:5px!important}
@@ -12929,7 +12932,7 @@ table{max-width:100%}
     min-width:32px!important;max-width:32px!important;
     flex-basis:32px!important;
   }
-  .v263-app-header.ob-v263727-header{height:78px!important;min-height:78px!important}
+  .v263-app-header.ob-v263727-header{height:calc(33.333vw + 58px)!important;min-height:0!important}
   .ob-v263727-header-btn,
   .ob-v263727-actions-wrap .v1820-home-actions > button,
   .ob-v263727-actions-wrap .v1820-language-wrap > button{

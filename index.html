@@ -2414,6 +2414,7 @@ html.ob-return-from-admin #obAdminReturnTransition,#obAdminReturnTransition.ob-t
   <div id="v1812NotificheArchivio"></div>
 </section>
 <div id="obClientNotice" class="hidden" role="dialog" aria-modal="true" aria-labelledby="obClientTitle" style="position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:16px"><div class="card" style="width:min(94vw,460px);max-height:85vh;overflow:auto"><h2 id="obClientTitle">Aggiornamento disponibile</h2><p id="obClientVersion"></p><ul id="obClientNotes"></ul><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="secondary" type="button" id="obClientLater">Più tardi</button><button class="success" type="button" id="obClientNow">Aggiorna ora</button></div></div></div>
+<div id="obClientLoading" class="hidden" role="status" aria-live="polite" aria-label="Aggiornamento in corso" style="position:fixed;inset:0;z-index:100001;background:rgba(5,35,26,.88);display:flex;align-items:center;justify-content:center;padding:20px"><div class="card" style="width:min(90vw,350px);padding:32px 20px;text-align:center"><svg width="64" height="64" viewBox="0 0 50 50" role="img" aria-label="Caricamento" style="display:block;margin:0 auto 18px"><circle cx="25" cy="25" r="19" fill="none" stroke="#d7ad4b" stroke-width="5" opacity=".25"/><path d="M25 6 A19 19 0 0 1 44 25" fill="none" stroke="#16845d" stroke-width="5" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.85s" repeatCount="indefinite"/></path></svg><h2 style="margin:0 0 8px;color:#17432f">Aggiornamento in corso…</h2><p style="margin:0;color:#17432f">Preparazione della nuova versione di OrniAlleva.</p></div></div>
 <div id="obClientSuccess" class="hidden" role="dialog" aria-modal="true" aria-labelledby="obClientSuccessTitle" style="position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:18px"><div class="card" style="width:min(94vw,460px);max-height:85vh;overflow:auto;text-align:center"><div style="font-size:46px" aria-hidden="true">✓</div><h2 id="obClientSuccessTitle">OrniAlleva è aggiornato!</h2><p id="obClientSuccessVersion"></p><h3>Ecco le novità di questa versione</h3><ul id="obClientSuccessNotes" style="text-align:left"></ul><button type="button" id="obClientSuccessClose">Continua su OrniAlleva</button></div></div>
 <div id="v1812NotifModal" class="v1812-notif-modal" aria-hidden="true">
   <div class="v1812-notif-card">
@@ -2699,31 +2700,44 @@ async function obClientControlla(manuale=false){
  }catch(e){console.warn("OrniAlleva, controllo release",e);if(manuale)obClientSettings("Controllo non riuscito. Verifica la connessione o la configurazione degli aggiornamenti.");}
  finally{obClientBusy=false;}
 }
+let obClientInstalling=false;
 async function obClientInstalla(){
- if(!obClientPending)return;
- if(OB_CLIENT_TEST){
-  if(obClientSchedaAperta()){obClientSettings("Prima salva o chiudi la scheda aperta.");return;}
-  $("obClientNotice").classList.add("hidden");
-  const fake=obClientPending;obClientPending=null;obClientSettings("Test completato: installazione simulata. Nessun dato modificato.");
-  try{sessionStorage.setItem(OB_CLIENT_DONE_KEY,JSON.stringify(fake));}catch(_){}
-  obClientCompletato();
-  return;
- }
- if(obClientSchedaAperta()){obClientSettings("Prima salva o chiudi la scheda aperta.");$("obClientNotice").classList.add("hidden");return;}
- const next=obClientUrl(obClientPending.update_url);if(!next)return;
- $("obClientNotice").classList.add("hidden");
- try{sessionStorage.setItem("ornialleva_post_update",obClientPending.version);sessionStorage.setItem(OB_CLIENT_DONE_KEY,JSON.stringify({version:obClientPending.version,notes:obClientPending.notes,title:obClientPending.title}));}catch(_){}
- if(navigator.serviceWorker){
-  try{
-   const reg=await navigator.serviceWorker.getRegistration();
-   if(reg){
-    await reg.update();
-    if(reg.waiting)reg.waiting.postMessage({type:"ORNIALLEVA_INSTALL_APPROVED"});
-   }
-  }catch(e){console.warn("Aggiornamento SW differito",e);}
- }
- next.searchParams.set("ornialleva_update",Date.now().toString());
- location.assign(next.href);
+ if(!obClientPending||obClientInstalling)return;
+ if(obClientSchedaAperta()){obClientSettings("Prima salva o chiudi la scheda aperta.");return;}
+ const next=OB_CLIENT_TEST?null:obClientUrl(obClientPending.update_url);
+ if(!OB_CLIENT_TEST&&!next)return;
+ obClientInstalling=true;
+ const row=obClientPending;
+ $("obClientNotice")?.classList.add("hidden");
+ $("obClientLoading")?.classList.remove("hidden");
+ try{
+  if(OB_CLIENT_TEST){
+   // La pausa serve solo a mostrare il caricamento della simulazione.
+   await new Promise(resolve=>setTimeout(resolve,1200));
+   obClientPending=null;
+   obClientSettings("Test completato: installazione simulata. Nessun dato modificato.");
+   try{sessionStorage.setItem(OB_CLIENT_DONE_KEY,JSON.stringify(row));}catch(_){}
+   $("obClientLoading")?.classList.add("hidden");
+   obClientCompletato();
+   return;
+  }
+  try{sessionStorage.setItem("ornialleva_post_update",row.version);sessionStorage.setItem(OB_CLIENT_DONE_KEY,JSON.stringify({version:row.version,notes:row.notes,title:row.title}));}catch(_){}
+  if(navigator.serviceWorker){
+   try{
+    const reg=await navigator.serviceWorker.getRegistration();
+    if(reg){
+     await reg.update();
+     if(reg.waiting)reg.waiting.postMessage({type:"ORNIALLEVA_INSTALL_APPROVED"});
+    }
+   }catch(e){console.warn("Aggiornamento SW differito",e);}
+  }
+  next.searchParams.set("ornialleva_update",Date.now().toString());
+  location.assign(next.href);
+ }catch(e){
+  console.warn("Aggiornamento non riuscito",e);
+  $("obClientLoading")?.classList.add("hidden");
+  obClientSettings("Aggiornamento non riuscito. Riprova.");
+ }finally{obClientInstalling=false;}
 }
 function obClientAvvia(){
  if(!sessionUser?.id)return;

@@ -1,4 +1,4 @@
-const OB_CACHE = "ornialleva-clienti-v30-99-1-refresh-20261101";
+const OB_CACHE = "ornialleva-clienti-v30-99-2-image-cache-20261101";
 const OB_STATIC = [
   "./",
   "./manifest.webmanifest",
@@ -6,7 +6,9 @@ const OB_STATIC = [
   "./icon-512.png",
   "./apple-touch-icon.png",
   "./favicon-32.png",
-  "./favicon-16.png"
+  "./favicon-16.png",
+  "./ob_asset_051_3aefa10cbb.jpg",
+  "./ornibreed_home_banner_v2.png"
 ];
 
 self.addEventListener("install", event => {
@@ -26,24 +28,37 @@ self.addEventListener("fetch", event => {
   if (req.method !== "GET") return;
   const url = new URL(req.url);
   if (url.hostname.includes("supabase.co")) return;
+
   const sameOrigin = url.origin === self.location.origin;
   const supportedCDN = url.hostname === "cdn.jsdelivr.net" || url.hostname === "cdnjs.cloudflare.com";
   if (!sameOrigin && !supportedCDN) return;
-  event.respondWith((async () => {
-    try {
-      const fresh = await fetch(req, { cache: "no-store" });
-      if (!fresh.ok && fresh.type !== "opaque") throw new Error("HTTP " + fresh.status);
-      if (sameOrigin && fresh.ok) {
+
+  if (req.mode === "navigate") {
+    event.respondWith((async () => {
+      try {
+        const fresh = await fetch(req, { cache: "no-store" });
+        if (!fresh.ok) throw new Error("HTTP " + fresh.status);
         const cache = await caches.open(OB_CACHE);
-        cache.put(req.mode === "navigate" ? "./" : req, fresh.clone()).catch(() => {});
+        cache.put("./", fresh.clone()).catch(() => {});
+        return fresh;
+      } catch (error) {
+        return (await caches.match("./")) || Response.error();
+      }
+    })());
+    return;
+  }
+
+  event.respondWith((async () => {
+    const cached = await caches.match(req);
+    if (cached) return cached;
+    try {
+      const fresh = await fetch(req);
+      if (fresh && (fresh.ok || fresh.type === "opaque")) {
+        const cache = await caches.open(OB_CACHE);
+        cache.put(req, fresh.clone()).catch(() => {});
       }
       return fresh;
     } catch (error) {
-      if (sameOrigin) {
-        const cache = await caches.open(OB_CACHE);
-        const saved = await cache.match(req.mode === "navigate" ? "./" : req);
-        if (saved) return saved;
-      }
       return Response.error();
     }
   })());

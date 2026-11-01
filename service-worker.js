@@ -1,4 +1,4 @@
-const OB_CACHE = "ornialleva-clienti-v30-99-1-hotfix-login-20261101";
+const OB_CACHE = "ornialleva-clienti-v30-99-1-cachefix-20261101";
 const OB_STATIC = [
   "./",
   "./manifest.webmanifest",
@@ -16,7 +16,7 @@ self.addEventListener("install", event => {
 self.addEventListener("activate", event => {
   event.waitUntil((async()=>{
     const keys=await caches.keys();
-    await Promise.all(keys.filter(k=>k.startsWith("ornibreed-") && k!==OB_CACHE).map(k=>caches.delete(k)));
+    await Promise.all(keys.filter(k=>(k.startsWith("ornibreed-")||k.startsWith("ornialleva-")) && k!==OB_CACHE).map(k=>caches.delete(k)));
     await self.clients.claim();
   })());
 });
@@ -32,12 +32,13 @@ self.addEventListener("fetch", event => {
   if(req.mode==="navigate"){
     event.respondWith((async()=>{
       try{
-        const fresh=await fetch(req);
+        const fresh=await fetch(req,{cache:"no-store"});
+        if(!fresh.ok)throw new Error("Navigation HTTP "+fresh.status);
         const cache=await caches.open(OB_CACHE);
         cache.put("./",fresh.clone()).catch(()=>{});
         return fresh;
       }catch(e){
-        return (await caches.match("./")) || Response.error();
+        return (await (await caches.open(OB_CACHE)).match("./")) || Response.error();
       }
     })());
     return;

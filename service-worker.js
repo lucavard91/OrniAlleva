@@ -1,4 +1,4 @@
-const OB_CACHE = "ornialleva-clienti-v30-99-2-image-cache-20261101";
+const OB_CACHE = "ornialleva-clienti-v30-99-3-cataloghi-20261102";
 const OB_STATIC = [
   "./",
   "./manifest.webmanifest",

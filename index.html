@@ -2623,7 +2623,7 @@ const FOTO_BUCKET="myagari-fot";
 const sezioni=["home","profilo","soggetti","coppie","riproduzione","genealogia","gabbie","alimentazione","calendario","salute","statistiche","registro","report","materiale_allevamento","guida","consigli_mostre","notifiche","contabilita","admin","standardFOI","aiValutazione"];
 const OB_CLIENT_VERSION="30.99.3";
 const OB_CLIENT_INSTALLED_KEY="ornialleva_clienti_installed_version";
-function obClientInstalledVersion(){try{const stored=localStorage.getItem(OB_CLIENT_INSTALLED_KEY);const parts=v=>String(v||"").split(".").map(Number);const x=parts(stored),y=parts(OB_CLIENT_VERSION);if(x.length===3&&x.every(Number.isInteger)&&x.some((v,i)=>v!==y[i])){for(let i=0;i<3;i++)if(x[i]!==y[i])return x[i]>y[i]?stored:OB_CLIENT_VERSION;}return OB_CLIENT_VERSION;}catch(_){return OB_CLIENT_VERSION;}}
+function obClientInstalledVersion(){try{const stored=localStorage.getItem(OB_CLIENT_INSTALLED_KEY);return /^\d+\.\d+\.\d+$/.test(stored||"")?stored:"30.99.2";}catch(_){return "30.99.2";}}
 const OB_CLIENT_CHANNEL="production";
 const OB_CLIENT_TEST=new URLSearchParams(location.search).get("ornialleva_test_update")==="1"; // Collaudo solo con link esplicito
 let obClientPending=null,obClientSnoozed="",obClientTimer=null,obClientBusy=false;
@@ -9293,7 +9293,7 @@ async function v186PdfFormato(titolo,html,orientamento="portrait",formato="A4"){
 let v18InstallPrompt=null;
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();v18InstallPrompt=e;$("v18InstallBtn")?.classList.remove("hidden");});
 async function v18Installa(){if(!v18InstallPrompt){obAvviso("Se l'installazione non viene proposta automaticamente, usa il menu del browser e scegli “Aggiungi a schermata Home” / “Installa app”.");return;}v18InstallPrompt.prompt();await v18InstallPrompt.userChoice;v18InstallPrompt=null;$("v18InstallBtn")?.classList.add("hidden");}
-if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("service-worker.js?v=30992newvisual20261101",{scope:"./",updateViaCache:"none"});reg.update().catch(()=>{});}catch(e){console.warn("Service worker",e);}});}
+if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("service-worker.js?v=30993cataloghi20261102",{scope:"./",updateViaCache:"none"});reg.update().catch(()=>{});}catch(e){console.warn("Service worker",e);}});}
 function v18Init(){
   v1811InitLingua();
   $("v18MenuBtn")?.addEventListener("click",v18ApriDrawer);$("v18DrawerClose")?.addEventListener("click",v18ChiudiDrawer);$("v18DrawerBackdrop")?.addEventListener("click",v18ChiudiDrawer);$("v18PremiumClose")?.addEventListener("click",v18ChiudiPremium);$("v18InstallBtn")?.addEventListener("click",v18Installa);

@@ -7359,7 +7359,8 @@ box.innerHTML = `
     const q=norm(input.value);
     if(!q){box.innerHTML="";box.classList.add("hidden");return;}
     const source=type==="specie"?speciesItems():type==="razza"?breedItems():type==="colore"?colorItems():mutationItems();
-    const rows=source.filter(x=>norm(x).includes(q)||(type==="mutazione"&&synonymsMatch(x,q))).slice(0,8);
+    const obScientificMatch=x=>type==="specie"&&(C.taxa.length?validSpecies():OB_APPROVED_SPECIES_20261102).some(t=>norm(taxLabel(t))===norm(x)&&[t.scientific_name,...aliases(t)].some(n=>norm(n).includes(q)));
+    const rows=source.filter(x=>norm(x).includes(q)||obScientificMatch(x)||(type==="mutazione"&&synonymsMatch(x,q))).slice(0,8);
     box.innerHTML="";
     const selectHint=label=>{
       input.value=label;

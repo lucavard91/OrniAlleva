@@ -7208,7 +7208,7 @@ box.innerHTML = `
   }
 }  
  function attivaSuggerimentiSoggetti(){
-  const C={taxa:[],breeds:[],mutations:[],phenotypes:[],variants:[],standards:[],globalCatalog:[],canaryColors:[]};
+  const C={taxa:[],breeds:[],forms:[],mutations:[],phenotypes:[],variants:[],standards:[],globalCatalog:[],canaryColors:[]};
   const $id=id=>$(id),arr=x=>Array.isArray(x)?x:[];
   const norm=x=>String(x||"").trim().toLocaleLowerCase("it").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim();
   const uniq=xs=>[...new Map(xs.filter(Boolean).map(x=>[norm(x),String(x).trim()])).values()].sort((a,b)=>a.localeCompare(b,"it"));
@@ -7271,6 +7271,11 @@ box.innerHTML = `
     field.replaceChildren(new Option(taxa.length?(isCan?"Seleziona specializzazione":"Gruppo della specie"):"Seleziona prima la specie",""));
     choices.forEach(v=>field.add(new Option(v,v)));
     field.value=choices.includes(was)?was:(isCan?"":(choices[0]||""));
+    // Un nome tipico del Canarino di Colore può scegliere la specializzazione
+    // solo se l'allevatore non ne ha già scelta una diversa.
+    const mutation=norm($id("s_mutazione")?.value||"");
+    const isColorName=/^(?:(?:agata|bruno|isabella|nero|avorio)\s+)*(?:giallo|rosso)\s+(?:intenso|brinato|mosaico)$|^bianco\s+(?:recessivo|dominante)$/.test(mutation);
+    if(isCan&&!field.value&&isColorName)field.value=canaryCategories[0];
     const isColor=isCan&&field.value===canaryCategories[0];
     const breedField=$id("obV34BreedField"),breedLabel=$id("obV34BreedLabel"),breedInput=$id("s_razza");
     if(breedField)breedField.hidden=isColor;
@@ -7289,8 +7294,13 @@ box.innerHTML = `
     const isCan=selectedTaxa().some(isCanary);
     if(isCan&&cat)rows=rows.filter(b=>categoryOfBreed(b)===cat);
     let labels=rows.map(breedLabel);
+    // Forme e sottospecie gia catalogate (es. Cardellino Major/Frigoris).
+    // Non sono mutazioni genetiche: compaiono nel campo Razza/forma.
+    if(ids.size)labels.push(...C.forms.filter(f=>ids.has(String(f.taxon_id))&&f.active!==false).map(f=>String(f.form_name||'')).filter(Boolean));
     return uniq(labels);
   };
+  const formSynonymsMatch=(label,term)=>C.forms.some(f=>taxIds().has(String(f.taxon_id))&&norm(f.form_name||f.name)===norm(label)&&
+    [f.scientific_name,...aliases(f)].some(v=>obMatchCommonName(v,term)));
   const mutationSynonyms=label=>{
     const z=norm(label),ids=taxIds();
     const equivalent=x=>norm(mutLabel({name:x}))===z;
@@ -7298,19 +7308,22 @@ box.innerHTML = `
       .flatMap(g=>arr(g.sinonimi).map(String));
     const fromMutations=C.mutations.filter(m=>ids.has(String(m.taxon_id))&&(equivalent(m.name)||norm(mutLabel(m))===z))
       .flatMap(m=>[...aliases(m),...arr(meta(m).synonyms),...arr(meta(m).aliases)]);
-    return uniq([...fromView,...fromMutations]);
+    const fromPhenotypes=C.phenotypes.filter(p=>ids.has(String(p.taxon_id))&&norm(mutLabel(p))===z&&
+      meta(p).catalog_usage==="SEARCH_DISPLAY").flatMap(aliases);
+    const fromVariants=C.variants.filter(v=>ids.has(String(v.taxon_id))&&norm(v.name)===z).flatMap(aliases);
+    return uniq([...fromView,...fromMutations,...fromPhenotypes,...fromVariants]);
   };
   const synonymsMatch=(label,term)=>mutationSynonyms(label).some(a=>norm(a).includes(term)) ||
     (norm(label)==="cinnamon"&&norm("cannella").includes(term)) ||
     (norm(label)==="fawn"&&norm("fawn").includes(term));
   const updateDisplay=()=>{
     const el=$id("obV34FullName");if(!el)return;
-    const values=[$id("s_razza")?.value,$id("s_mutazione")?.value,$id("s_colore")?.value,$id("s_categoria_piumaggio")?.value].filter(Boolean);
+    const values=[$id("s_razza")?.value,$id("s_mutazione")?.value].filter(Boolean);
     el.textContent=values.length?"Denominazione: "+values.join(" · "):"";
   };
   $id("s_specie")?.addEventListener("change",()=>{$id("s_razza").value="";$id("s_mutazione").value="";$id("s_colore").value="";updateCategory();updateDisplay();refreshCarrierSuggestions()});
   $id("s_categoria_specie")?.addEventListener("change",()=>{$id("s_razza").value="";updateCategory();updateDisplay()});
-  ["s_razza","s_mutazione","s_colore","s_categoria_piumaggio"].forEach(id=>{const el=$id(id);el?.addEventListener("input",updateDisplay);el?.addEventListener("change",updateDisplay)});
+  ["s_razza","s_mutazione","s_colore","s_categoria_piumaggio"].forEach(id=>{const el=$id(id);el?.addEventListener("input",updateDisplay);el?.addEventListener("change",()=>{if(id==="s_mutazione")updateCategory();updateDisplay()})});
   $id("newSoggetto")?.addEventListener("click",()=>{obV34ResetDetails();updateCategory();document.querySelector('[data-ob-hints="colore"]')?.classList.add("hidden")});
   updateCategory();
   const canaryMutationItems=()=>{
@@ -7318,8 +7331,9 @@ box.innerHTML = `
     const mutations=C.mutations.filter(m=>m.taxon_id&&ids.has(String(m.taxon_id))).map(mutLabel);
     const catalog=C.globalCatalog.filter(g=>g.mutation_id&&ids.has(String(g.taxon_id))).map(g=>mutLabel({name:g.mutazione}));
     const phenotypes=C.phenotypes.filter(p=>ids.has(String(p.taxon_id))&&meta(p).catalog_usage==="SEARCH_DISPLAY").map(mutLabel);
-    // Solo record presenti nel catalogo genetico o nelle combinazioni archiviate in Supabase.
-    return uniq([...mutations,...catalog,...phenotypes,...C.canaryColors]);
+    const variants=C.variants.filter(v=>ids.has(String(v.taxon_id))&&
+      ["MUTATION_EXPRESSION","COMBINATION","ANCESTRAL","PHENOTYPE"].includes(String(v.variant_type||"").toUpperCase())).map(v=>String(v.name||""));
+    return uniq([...mutations,...catalog,...phenotypes,...variants,...C.canaryColors]);
   };
   const mutationItems=()=>{
     const s=norm($id("s_specie")?.value||""),ids=taxIds();
@@ -7328,8 +7342,13 @@ box.innerHTML = `
     if(s&&!ids.size)return [];
     // Mutazione = mutazioni reali del taxon; i componenti fenotipici e le varianti
     // espositive restano archivi distinti, non diventano automaticamente geni.
-    const rows=C.mutations.filter(m=>!s||(m.taxon_id&&ids.has(String(m.taxon_id)))).map(mutLabel);
-    rows.push(...C.globalCatalog.filter(g=>g.mutation_id&&(!s||ids.has(String(g.taxon_id)))).map(g=>mutLabel({name:g.mutazione})));
+    const rows=C.mutations.filter(m=>m.taxon_id&&ids.has(String(m.taxon_id))).map(mutLabel);
+    rows.push(...C.globalCatalog.filter(g=>g.mutation_id&&ids.has(String(g.taxon_id))).map(g=>mutLabel({name:g.mutazione})));
+    // Espressioni, combinazioni e ancestrali sono voci descrittive, non nuovi geni.
+    rows.push(...C.variants.filter(v=>ids.has(String(v.taxon_id))&&
+      ["MUTATION_EXPRESSION","COMBINATION","ANCESTRAL","PHENOTYPE"].includes(String(v.variant_type||"").toUpperCase())).map(v=>String(v.name||"")).filter(Boolean));
+    rows.push(...C.phenotypes.filter(p=>ids.has(String(p.taxon_id))&&
+      meta(p).catalog_usage==="SEARCH_DISPLAY").map(mutLabel));
     return uniq(rows);
   };
   const refreshCarrierSuggestions=()=>{
@@ -7341,14 +7360,22 @@ box.innerHTML = `
   // Suggerimenti leggeri: niente datalist enormi e nessuna ricostruzione completa a ogni tasto.
   const inlineBox=type=>document.querySelector('[data-ob-hints="'+type+'"]');
   const hideInline=type=>inlineBox(type)?.classList.add("hidden");
+  // Ricerca indipendente dall'ordine delle parole, es. "mosaico rosso" = "rosso mosaico".
+  // Controlla tutte le parole senza alterare il nome canonico salvato.
+  const obMatchCommonName=(label,query)=>{
+    const clean=v=>norm(v).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim();
+    const name=clean(label),q=clean(query);
+    return !q||name.includes(q)||q.split(" ").filter(Boolean).every(word=>name.split(" ").some(token=>token.startsWith(word)));
+  };
   const showInline=type=>{
     const input=$id(type==="specie"?"s_specie":type==="razza"?"s_razza":type==="colore"?"s_colore":"s_mutazione"),box=inlineBox(type);
     if(!input||!box)return;
     const q=norm(input.value);
     if(!q&&type==="specie"){box.innerHTML="";box.classList.add("hidden");return;}
     const source=type==="specie"?speciesItems():type==="razza"?breedItems():type==="colore"?colorItems():mutationItems();
+    const rank=x=>{const n=norm(x);return n===q?0:n.startsWith(q)?1:obMatchCommonName(x,q)?2:3};
     const obScientificMatch=x=>type==="specie"&&(C.taxa.length?validSpecies():OB_APPROVED_SPECIES_20261102).some(t=>norm(taxLabel(t))===norm(x)&&[t.scientific_name,...aliases(t)].some(n=>norm(n).includes(q)));
-    const rows=source.filter(x=>norm(x).includes(q)||obScientificMatch(x)||(type==="mutazione"&&synonymsMatch(x,q))).slice(0,8);
+    const rows=source.filter(x=>rank(x)<3||obScientificMatch(x)||(type==="razza"&&formSynonymsMatch(x,q))||(type==="mutazione"&&synonymsMatch(x,q))).sort((a,b)=>rank(a)-rank(b)||a.localeCompare(b,"it")).slice(0,12);
     box.innerHTML="";
     const selectHint=label=>{
       input.value=label;
@@ -7384,8 +7411,8 @@ box.innerHTML = `
   const dataFor=type=>type==="specie"?speciesItems():type==="razza"?breedItems():type==="colore"?colorItems():mutationItems();
   const titleFor=type=>type==="specie"?"Seleziona specie":type==="razza"?"Seleziona razza":type==="colore"?"Seleziona colore":"Seleziona mutazione";
   const contextFor=type=>{if(type==="specie")return "Scegli la specie.";const sp=$id("s_specie")?.value||"";if(type==="razza")return sp?"Specie: "+sp:"Scegli prima la specie.";return [sp&&("Specie: "+sp),$id("s_razza")?.value&&("Razza: "+$id("s_razza").value)].filter(Boolean).join(" · ")||(type==="colore"?"Scegli colore.":"Scegli mutazione.")};
-  const searchable=(label,q)=>{if(!q)return true;const nq=norm(q);if(norm(label).includes(nq))return true;if(currentType==="specie"&&(C.taxa.length?validSpecies():OB_APPROVED_SPECIES_20261102).some(t=>norm(taxLabel(t))===norm(label)&&names(t).some(name=>norm(name).includes(nq))))return true;if(currentType==="mutazione"&&synonymsMatch(label,nq))return true;if(currentType==="razza"&&label==="Gloster Fancy"&&norm("Gloucester").includes(nq))return true;if(currentType==="razza"&&label==="Razza Spagnola"&&norm("Spagnola").includes(nq))return true;return false};
-  const render=()=>{if(!list)return;const data=dataFor(currentType).filter(x=>searchable(x,search?.value||""));list.innerHTML="";data.forEach(label=>{const b=document.createElement("button");b.type="button";b.className="ob-catalog-item";b.textContent=currentType==="specie"?speciesDisplayLabel(label):label;b.addEventListener("click",()=>pick(label));list.appendChild(b)});empty?.classList.toggle("hidden",data.length!==0)};
+  const searchable=(label,q)=>{if(!q)return true;const nq=norm(q);if(obMatchCommonName(label,nq))return true;if(currentType==="specie"&&(C.taxa.length?validSpecies():OB_APPROVED_SPECIES_20261102).some(t=>norm(taxLabel(t))===norm(label)&&names(t).some(name=>norm(name).includes(nq))))return true;if(currentType==="mutazione"&&synonymsMatch(label,nq))return true;if(currentType==="razza"&&formSynonymsMatch(label,nq))return true;if(currentType==="razza"&&label==="Gloster Fancy"&&norm("Gloucester").includes(nq))return true;if(currentType==="razza"&&label==="Razza Spagnola"&&norm("Spagnola").includes(nq))return true;return false};
+  const render=()=>{if(!list)return;const q=norm(search?.value||"");const rank=x=>{const n=norm(x);return n===q?0:n.startsWith(q)?1:obMatchCommonName(x,q)?2:3};const data=dataFor(currentType).filter(x=>searchable(x,q)).sort((a,b)=>q?rank(a)-rank(b)||a.localeCompare(b,"it"):a.localeCompare(b,"it"));list.innerHTML="";data.forEach(label=>{const b=document.createElement("button");b.type="button";b.className="ob-catalog-item";b.textContent=currentType==="specie"?speciesDisplayLabel(label):label;b.addEventListener("click",()=>pick(label));list.appendChild(b)});empty?.classList.toggle("hidden",data.length!==0)};
   const close=()=>{if(!dialog||dialog.classList.contains("hidden"))return;document.activeElement===search&&search.blur();dialog.classList.add("hidden");document.body.classList.remove("ob-catalog-locked");document.documentElement.style.overflow="";document.body.style.overflow="";window.scrollTo(0,savedScroll);currentInput=null;currentType="";if(search)search.value=""};
   const pick=label=>{if(!currentInput)return;currentInput.value=label;currentInput.dispatchEvent(new Event("change",{bubbles:true}));if(currentType==="specie"){$id("s_razza").value="";$id("s_mutazione").value="";updateCategory()}else if(currentType==="razza"){$id("s_mutazione").value=""}close()};
   const open=type=>{
@@ -7414,15 +7441,21 @@ box.innerHTML = `
   (async()=>{
     // Ogni elenco e indipendente: un permesso mancante non deve svuotare gli altri cataloghi.
     const sources=[
-      ["taxa","ob_taxa"],["breeds","ob_breeds"],["mutations","ob_mutations"],
+      ["taxa","ob_taxa"],["breeds","ob_breeds"],["forms","ob_taxon_forms"],["mutations","ob_mutations"],
       ["standards","ob_standard_versions"],["phenotypes","ob_phenotype_components"],
        ["variants","ob_exhibition_variants"]
     ];
     const results=await Promise.all(sources.map(async([key,table])=>{
       try{
-        const result=await sb.from(table).select("*").range(0,999);
-        if(result.error)throw result.error;
-        return {key,data:arr(result.data),error:null};
+        const data=[];
+        for(let offset=0;;offset+=1000){
+          const result=await sb.from(table).select("*").range(offset,offset+999);
+          if(result.error)throw result.error;
+          const page=arr(result.data);
+          data.push(...page);
+          if(page.length<1000)break;
+        }
+        return {key,data,error:null};
       }catch(error){return {key,data:[],error};}
     }));
     const errors=[];
@@ -7430,23 +7463,53 @@ box.innerHTML = `
       if(result.error){errors.push(result.key);console.warn("Catalogo OrniBreed: "+result.key,result.error);continue;}
       if(result.key==="taxa")C.taxa=result.data.filter(x=>x.active!==false);
       if(result.key==="breeds")C.breeds=result.data.filter(x=>String(x.status||"").toUpperCase()!=="SUPERSEDED");
+      if(result.key==="forms")C.forms=result.data.filter(x=>x.active!==false&&String(x.status||"").toUpperCase()!=="SUPERSEDED").map(x=>({...x,form_name:x.name}));
       if(result.key==="mutations")C.mutations=result.data.filter(x=>String(x.status||"").toUpperCase()!=="SUPERSEDED");
       if(result.key==="standards")C.standards=result.data.filter(x=>x.is_current!==false&&String(x.status||"").toUpperCase()!=="SUPERSEDED");
       if(result.key==="phenotypes")C.phenotypes=result.data;
        if(result.key==="variants")C.variants=result.data.filter(v=>v.active!==false&&String(v.status||"").toUpperCase()!=="SUPERSEDED");
     }
     try{
-      const gr=await sb.from("ob_app_genetic_catalog_v1")
-        .select("taxon_id,mutation_id,mutazione,sinonimi,previsione_autorizzata")
-        .range(0,999);
-      if(!gr.error)C.globalCatalog=arr(gr.data);
-      else console.warn("Vista catalogo genetico non disponibile",gr.error);
+      const pages=[];
+      for(let offset=0;;offset+=1000){
+        const gr=await sb.from("ob_app_genetic_catalog_v1")
+          .select("taxon_id,mutation_id,mutazione,sinonimi,previsione_autorizzata")
+          .range(offset,offset+999);
+        if(gr.error)throw gr.error;
+        const page=arr(gr.data);pages.push(...page);
+        if(page.length<1000)break;
+      }
+      C.globalCatalog=pages;
     }catch(error){console.warn("Catalogo genetico globale: caricamento opzionale",error)}
+    // Il collaudo ospite locale dispone di un catalogo dimostrativo indipendente.
+    // Se il cambio al guest avviene durante queste richieste, non sovrascriverlo.
+    if(window.__obGuestMode && window.obGuestLocal?.isLocalDemo){
+      obGuestApplyCatalog();
+      refreshCarrierSuggestions();
+      if(currentType)render();
+      return;
+    }
     // Recupera l'archivio gia caricato se una singola richiesta non riesce.
     if(!C.taxa.length&&arr(v19ManualCatalog?.taxa).length)C.taxa=arr(v19ManualCatalog.taxa);
     if(!C.breeds.length&&arr(v19ManualCatalog?.breeds).length)C.breeds=arr(v19ManualCatalog.breeds);
     if(!C.mutations.length&&arr(v19ManualCatalog?.mutations).length)C.mutations=arr(v19ManualCatalog.mutations);
-    try{const cc=await sb.from('ob_canary_color_combinations').select('name').range(0,999);if(!cc.error)C.canaryColors=arr(cc.data).map(x=>String(x.name||'')).filter(Boolean);else console.warn('Combinazioni canarino non disponibili',cc.error);}catch(e){console.warn('Combinazioni canarino',e)}
+    try{
+      // Catalogo canarini: unione di fonti Supabase, senza suggerimenti scritti nell'HTML.
+      // Carica tutte le pagine e non perdere un'intera fonte se l'altra non risponde.
+      const options=[];
+      for(const [table,field] of [["ob_canary_color_combinations","name"],["ob_canarino_catalogo_selettore_v2","denominazione"]]){
+        try{
+          for(let offset=0;;offset+=1000){
+            const response=await sb.from(table).select(field).range(offset,offset+999);
+            if(response.error)throw response.error;
+            const page=arr(response.data);
+            options.push(...page.map(x=>String(x[field]||"")).filter(Boolean));
+            if(page.length<1000)break;
+          }
+        }catch(e){console.warn("Catalogo canarini: "+table,e)}
+      }
+      C.canaryColors=uniq(options);
+    }catch(e){console.warn("Catalogo combinazioni canarini",e)}
     updateCategory();refreshCarrierSuggestions();
     v19ManualCatalog.taxa=C.taxa;v19ManualCatalog.breeds=C.breeds;v19ManualCatalog.mutations=C.mutations;
     if(currentType)render();

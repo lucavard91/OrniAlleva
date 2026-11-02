@@ -571,9 +571,9 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .ob-v3078-total{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:8px!important;width:100%!important;height:auto!important;margin:4px 0 6px!important;padding:0!important;overflow:visible!important;background:transparent!important;border:0!important;box-shadow:none!important}.ob-v3078-total img{display:block!important;position:static!important;width:8cm!important;height:2cm!important;max-width:calc(100% - 58px)!important;object-fit:contain!important;object-position:left center!important;transform:none!important;border-radius:14px!important;flex:0 1 auto!important}.ob-v3078-total-count{position:static!important;transform:none!important;display:flex!important;align-items:center!important;justify-content:center!important;width:46px!important;height:46px!important;flex:0 0 46px!important;border-radius:50%!important;background:#2f7657!important;border:2px solid #d8b65a!important;color:#fff!important;font-size:19px!important;font-weight:900!important;line-height:1!important;z-index:2!important}.ob-v3078-end-season{position:relative;border:0;background:transparent;padding:0;cursor:pointer;max-width:720px;width:100%}.ob-v3078-end-season img{display:block;width:100%;height:auto;border-radius:16px}.ob-v3078-end-year{position:absolute;left:24.7%;bottom:13%;font-weight:900;font-size:clamp(13px,2.2vw,24px);color:#7a4b12;background:#fff4d5cc;padding:1px 7px;border-radius:8px}.ob-v3078-chick{border:1px solid #d8e3d8;border-radius:12px;margin:8px 0;background:#fff}.ob-v3078-chick summary{cursor:pointer;padding:12px;font-weight:800;color:#31543a}.ob-v3078-chick .ob-pullo-row{padding:0 12px 12px}.ob-v3078-kin-banner{width:100%;max-width:760px;border:0;background:transparent;padding:0;cursor:pointer}.ob-v3078-kin-banner img{width:100%;display:block;border-radius:18px}.ob-v3078-kin-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ob-v3078-kin-grid select{width:100%}@media(max-width:650px){.ob-v3078-kin-grid{grid-template-columns:1fr}.ob-v3078-total{width:100%!important;height:auto!important;margin:3px 0 5px!important;gap:6px!important}.ob-v3078-total img{width:8cm!important;height:2cm!important;max-width:calc(100% - 48px)!important;object-fit:contain!important;object-position:left center!important}.ob-v3078-total-count{width:40px!important;height:40px!important;flex-basis:40px!important;font-size:15px!important;border-width:2px!important}}
 
 /* Catalogo soggetto: selettore dedicato, senza dropdown nativi/autocomplete */
-.ob-catalog-field{position:relative;display:flex;align-items:center;width:100%}
-.ob-catalog-field>input{width:100%;padding-right:48px!important;cursor:pointer;background:#fff!important}
-.ob-catalog-open{position:absolute;right:3px;top:3px;bottom:3px;width:42px;border:0!important;background:transparent!important;color:#555!important;font-size:30px!important;line-height:1!important;padding:0!important;margin:0!important;box-shadow:none!important}
+.ob-catalog-field{position:relative;display:flex;align-items:center;width:100%;min-width:0;box-sizing:border-box}
+.ob-catalog-field>input{width:100%;min-width:0;box-sizing:border-box;padding-right:50px!important;cursor:pointer;background:#fff!important}
+.ob-catalog-open{position:absolute!important;right:0!important;left:auto!important;top:3px;bottom:3px;width:38px!important;min-width:38px!important;max-width:38px!important;display:flex!important;align-items:center;justify-content:center;border:0!important;background:transparent!important;color:#555!important;font-size:30px!important;line-height:1!important;padding:0!important;margin:0!important;box-shadow:none!important;transform:none!important}
 .ob-inline-suggestions{position:absolute;left:0;right:46px;top:calc(100% + 3px);z-index:10020;max-height:220px;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#fff;border:1px solid #d8dedb;border-radius:10px;box-shadow:0 8px 22px rgba(0,0,0,.13);padding:4px}.ob-inline-suggestions.hidden{display:none!important}.ob-inline-suggestion{display:block;width:100%;text-align:left;border:0!important;background:#fff!important;color:#222!important;padding:10px 11px!important;margin:0!important;border-radius:7px!important;box-shadow:none!important;font-size:15px!important}.ob-inline-suggestion+ .ob-inline-suggestion{border-top:1px solid #eee!important}.ob-inline-suggestion:active{background:#f2f6f3!important}
 .ob-catalog-dialog{position:fixed!important;inset:0!important;z-index:2147483000;background:rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;padding:18px}
 .ob-catalog-dialog.hidden{display:none!important}
@@ -1926,9 +1926,9 @@ html.ob-return-from-admin #obAdminReturnTransition,#obAdminReturnTransition.ob-t
   <input id="s_razza" type="text" placeholder="Scrivi o seleziona razza" autocomplete="off"><div class="ob-inline-suggestions hidden" data-ob-hints="razza"></div>
   <button type="button" class="ob-catalog-open" data-ob-catalog="razza" aria-label="Apri catalogo razze">›</button>
 </div>
-<label>Mutazione</label>
+<label>Colore / Mutazione</label>
 <div class="ob-catalog-field">
-  <input id="s_mutazione" type="text" placeholder="Scrivi o seleziona mutazione" autocomplete="off"><div class="ob-inline-suggestions hidden" data-ob-hints="mutazione"></div>
+  <input id="s_mutazione" type="text" placeholder="Cerca: rosso mosaico, giallo intenso, bianco recessivo..." autocomplete="off"><div class="ob-inline-suggestions hidden" data-ob-hints="mutazione"></div>
   <button type="button" class="ob-catalog-open" data-ob-catalog="mutazione" aria-label="Apri catalogo mutazioni">›</button>
 </div>
     <div class="ob-v34-color-fields" id="obV34ColorFields">
@@ -7286,7 +7286,7 @@ box.innerHTML = `
     const s=norm($id("s_specie")?.value||""),ids=taxIds(),cat=currentCategory();
     let rows=C.breeds;
     if(s)rows=ids.size?rows.filter(b=>ids.has(String(b.taxon_id))):[];
-    const isCan=s.includes("canar");
+    const isCan=selectedTaxa().some(isCanary);
     if(isCan&&cat)rows=rows.filter(b=>categoryOfBreed(b)===cat);
     let labels=rows.map(breedLabel);
     return uniq(labels);
@@ -7308,7 +7308,7 @@ box.innerHTML = `
     const values=[$id("s_razza")?.value,$id("s_mutazione")?.value,$id("s_colore")?.value,$id("s_categoria_piumaggio")?.value].filter(Boolean);
     el.textContent=values.length?"Denominazione: "+values.join(" · "):"";
   };
-  $id("s_specie")?.addEventListener("change",()=>{$id("s_razza").value="";updateCategory();updateDisplay()});
+  $id("s_specie")?.addEventListener("change",()=>{$id("s_razza").value="";$id("s_mutazione").value="";$id("s_colore").value="";updateCategory();updateDisplay();refreshCarrierSuggestions()});
   $id("s_categoria_specie")?.addEventListener("change",()=>{$id("s_razza").value="";updateCategory();updateDisplay()});
   ["s_razza","s_mutazione","s_colore","s_categoria_piumaggio"].forEach(id=>{const el=$id(id);el?.addEventListener("input",updateDisplay);el?.addEventListener("change",updateDisplay)});
   $id("newSoggetto")?.addEventListener("click",()=>{obV34ResetDetails();updateCategory();document.querySelector('[data-ob-hints="colore"]')?.classList.add("hidden")});
@@ -7323,12 +7323,12 @@ box.innerHTML = `
   };
   const mutationItems=()=>{
     const s=norm($id("s_specie")?.value||""),ids=taxIds();
-    if(s&&s.includes("canar"))return canaryMutationItems();
+    if(selectedTaxa().some(isCanary))return canaryMutationItems();
     
     if(s&&!ids.size)return [];
     // Mutazione = mutazioni reali del taxon; i componenti fenotipici e le varianti
     // espositive restano archivi distinti, non diventano automaticamente geni.
-    const rows=C.mutations.filter(m=>!s||!m.taxon_id||ids.has(String(m.taxon_id))).map(mutLabel);
+    const rows=C.mutations.filter(m=>!s||(m.taxon_id&&ids.has(String(m.taxon_id)))).map(mutLabel);
     rows.push(...C.globalCatalog.filter(g=>g.mutation_id&&(!s||ids.has(String(g.taxon_id)))).map(g=>mutLabel({name:g.mutazione})));
     return uniq(rows);
   };
@@ -7345,7 +7345,7 @@ box.innerHTML = `
     const input=$id(type==="specie"?"s_specie":type==="razza"?"s_razza":type==="colore"?"s_colore":"s_mutazione"),box=inlineBox(type);
     if(!input||!box)return;
     const q=norm(input.value);
-    if(!q){box.innerHTML="";box.classList.add("hidden");return;}
+    if(!q&&type==="specie"){box.innerHTML="";box.classList.add("hidden");return;}
     const source=type==="specie"?speciesItems():type==="razza"?breedItems():type==="colore"?colorItems():mutationItems();
     const obScientificMatch=x=>type==="specie"&&(C.taxa.length?validSpecies():OB_APPROVED_SPECIES_20261102).some(t=>norm(taxLabel(t))===norm(x)&&[t.scientific_name,...aliases(t)].some(n=>norm(n).includes(q)));
     const rows=source.filter(x=>norm(x).includes(q)||obScientificMatch(x)||(type==="mutazione"&&synonymsMatch(x,q))).slice(0,8);
@@ -7387,7 +7387,7 @@ box.innerHTML = `
   const searchable=(label,q)=>{if(!q)return true;const nq=norm(q);if(norm(label).includes(nq))return true;if(currentType==="specie"&&(C.taxa.length?validSpecies():OB_APPROVED_SPECIES_20261102).some(t=>norm(taxLabel(t))===norm(label)&&names(t).some(name=>norm(name).includes(nq))))return true;if(currentType==="mutazione"&&synonymsMatch(label,nq))return true;if(currentType==="razza"&&label==="Gloster Fancy"&&norm("Gloucester").includes(nq))return true;if(currentType==="razza"&&label==="Razza Spagnola"&&norm("Spagnola").includes(nq))return true;return false};
   const render=()=>{if(!list)return;const data=dataFor(currentType).filter(x=>searchable(x,search?.value||""));list.innerHTML="";data.forEach(label=>{const b=document.createElement("button");b.type="button";b.className="ob-catalog-item";b.textContent=currentType==="specie"?speciesDisplayLabel(label):label;b.addEventListener("click",()=>pick(label));list.appendChild(b)});empty?.classList.toggle("hidden",data.length!==0)};
   const close=()=>{if(!dialog||dialog.classList.contains("hidden"))return;document.activeElement===search&&search.blur();dialog.classList.add("hidden");document.body.classList.remove("ob-catalog-locked");document.documentElement.style.overflow="";document.body.style.overflow="";window.scrollTo(0,savedScroll);currentInput=null;currentType="";if(search)search.value=""};
-  const pick=label=>{if(!currentInput)return;currentInput.value=label;currentInput.dispatchEvent(new Event("change",{bubbles:true}));if(currentType==="specie"){$id("s_razza").value="";$id("s_mutazione").value=""}else if(currentType==="razza"){$id("s_mutazione").value=""}close()};
+  const pick=label=>{if(!currentInput)return;currentInput.value=label;currentInput.dispatchEvent(new Event("change",{bubbles:true}));if(currentType==="specie"){$id("s_razza").value="";$id("s_mutazione").value="";updateCategory()}else if(currentType==="razza"){$id("s_mutazione").value=""}close()};
   const open=type=>{
     currentType=type;
     currentInput=$id(type==="specie"?"s_specie":type==="razza"?"s_razza":type==="colore"?"s_colore":"s_mutazione");
@@ -13566,7 +13566,7 @@ body.ob-v438-home #obV436MobileActions{display:flex!important;margin:6px 0 8px!i
 html,body{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden!important;overscroll-behavior-x:none!important}
 #app{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden!important}
 body{touch-action:pan-y pinch-zoom!important}
-@media(max-width:700px){.container{width:100%!important;max-width:100%!important;margin-left:auto!important;margin-right:auto!important;padding-left:8px!important;padding-right:8px!important;box-sizing:border-box!important;overflow-x:hidden!important}#home{width:calc(100vw - 16px)!important;max-width:calc(100vw - 16px)!important;min-width:0!important;margin-left:calc((100% - 100vw)/2 + 8px)!important;margin-right:0!important;padding:0!important;box-sizing:border-box!important;overflow-x:hidden!important}#home>*{width:100%;max-width:100%!important;min-width:0!important;box-sizing:border-box!important}}
+@media(max-width:700px){.container{width:100%!important;max-width:100%!important;margin-left:auto!important;margin-right:auto!important;padding-left:8px!important;padding-right:8px!important;box-sizing:border-box!important;overflow-x:hidden!important}#home{width:100%!important;max-width:100%!important;min-width:0!important;margin-left:auto!important;margin-right:auto!important;padding:0!important;box-sizing:border-box!important;overflow-x:hidden!important}#home>*{width:100%;max-width:100%!important;min-width:0!important;box-sizing:border-box!important}}
 img,video,canvas,svg{max-width:100%}
 #v185DocModal{overscroll-behavior:contain!important}
 #v185DocPreview{overflow:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important}

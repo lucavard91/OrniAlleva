@@ -4119,7 +4119,7 @@ function obMostraSceltaUscita(){
   document.body.appendChild(screen);
   screen.querySelector("[data-cancel-exit]").onclick=()=>screen.remove();
   screen.querySelector("[data-exit-app]").onclick=()=>{
-    screen.querySelector("div").innerHTML='<div style="font-size:45px">🦜</div><h2 style="color:#17432f">OrniAlleva</h2><p>Puoi chiudere l’app dal telefono. Il tuo account resterà collegato.</p><button type="button" data-return-app style="width:100%;padding:13px;border-radius:12px;background:#14563f;color:white;border:2px solid #d7ad4b">Torna all’app</button>';
+    screen.querySelector("div").innerHTML='<img src="logo_ornialleva_con_emblema_dorato.png" alt="Logo ufficiale OrniAlleva" style="display:block;width:min(65%,230px);height:auto;max-height:225px;object-fit:contain;margin:0 auto 12px" onerror="this.style.display='none'"><h2 style="color:#17432f">OrniAlleva</h2><p>Puoi chiudere l’app dal telefono. Il tuo account resterà collegato.</p><button type="button" data-close-app style="width:100%;padding:13px;border-radius:12px;background:#14563f;color:white;border:2px solid #d7ad4b">Esci</button>';
     screen.querySelector("[data-return-app]").onclick=()=>screen.remove();
   };
   screen.querySelector("[data-exit-account]").onclick=async()=>{

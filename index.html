@@ -4124,7 +4124,10 @@ function obMostraSceltaUscita(){
   screen.querySelector("[data-cancel-exit]").onclick=()=>screen.remove();
   screen.querySelector("[data-exit-app]").onclick=()=>{
     screen.querySelector("div").innerHTML='<img src="logo_ornialleva_con_emblema_dorato.png" alt="Logo ufficiale OrniAlleva" style="display:block;width:min(65%,230px);height:auto;max-height:225px;object-fit:contain;margin:0 auto 12px"><h2 style="color:#17432f">OrniAlleva</h2><p>Puoi chiudere l’app dal telefono. Il tuo account resterà collegato.</p><button type="button" data-close-app style="width:100%;padding:13px;border-radius:12px;background:#14563f;color:white;border:2px solid #d7ad4b">Esci</button>';
-    screen.querySelector("[data-return-app]").onclick=()=>screen.remove();
+    screen.querySelector("[data-close-app]").onclick=()=>{
+      try{window.close();}catch(_){}
+      screen.querySelector("div").innerHTML='<img src="logo_ornialleva_con_emblema_dorato.png" alt="Logo ufficiale OrniAlleva" style="display:block;width:min(65%,230px);height:auto;max-height:225px;object-fit:contain;margin:0 auto 12px"><h2 style="color:#17432f">OrniAlleva</h2><p>Il tuo account resta collegato.</p><p style="font-size:13px">Su iPhone, scorri verso l’alto per tornare alla schermata Home.</p>';
+    };
   };
   screen.querySelector("[data-exit-account]").onclick=async()=>{
     const b=screen.querySelector("[data-exit-account]");
@@ -8236,8 +8239,8 @@ async function init(){
    if(event==="PASSWORD_RECOVERY"){toggle("loginScreen",false);toggle("app",false);toggle("resetScreen",true);return;}
    if(session && (event==="INITIAL_SESSION" || event==="SIGNED_IN" || event==="TOKEN_REFRESHED" || event==="USER_UPDATED")){
      if(window.__obGuestBooting)return;
-     if(session.user?.is_anonymous){void obGuestResume(session);return;}
-     void avviaMostraApp(session);
+     if(session.user?.is_anonymous){setTimeout(()=>{void obGuestResume(session);},0);return;}
+     setTimeout(()=>{void avviaMostraApp(session);},0);
    }
    if(event==="SIGNED_OUT"){toggle("app",false);toggle("loginScreen",true);}
   });

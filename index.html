@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<title>OrniAlleva — Smart Aviculture Management</title><meta name="ornibreed-version" content="V34.18.6"><meta name="ornibreed-release-channel" content="production">
+<title>OrniAlleva — Smart Aviculture Management</title><meta name="ornibreed-version" content="V34.18.7"><meta name="ornibreed-release-channel" content="production">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -1217,6 +1217,7 @@ body{overflow-x:hidden;overscroll-behavior-x:none;}
 #obV2633Today .ob2633-image img{display:none!important}
 #obV2633TimeImg{background-image:url("assets_embedded/assets_embedded/ob_asset_046_d32f293776.png")!important}
 #obV2633WeatherImg{background-image:url("assets_embedded/assets_embedded/ob_asset_047_9ba044ac55.png")!important}
+#obV2633WeekImg{background-image:url("assets_embedded/assets_embedded/ob_asset_055_8ed122ae8e.jpg")!important;background-size:125% 125%!important;background-position:center bottom!important;background-repeat:no-repeat!important}
 #obV2633PhaseImg{background-image:url("https://raw.githubusercontent.com/lucavard91/OrniAlleva-Sviluppo/main/a_highly_detailed_photorealistic_illustrative_cir.png")!important;background-position:center!important;background-size:cover!important}
 @media(max-width:760px){#obV2633ProfileCompact{padding:9px!important;margin-top:8px!important}#obV2633ProfileCompact .v18-profile-row{grid-template-columns:52px minmax(0,1fr)!important}#obV2633ProfileCompact .ob-account-status-card{padding:6px 8px!important}#obV2633Today .ob2633-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}#obV2633Today .ob2633-item{grid-template-columns:44px minmax(0,1fr) 28px!important;padding:8px 7px!important;gap:6px!important}#obV2633Today .ob2633-item+.ob2633-item{border-top:0!important;border-left:1px solid rgba(31,91,63,.14)!important}#obV2633Today .ob2633-image{width:44px!important;height:44px!important}#obV2633Today .ob2633-main{font-size:13px!important}#obV2633Today .ob2633-sub{font-size:9px!important;line-height:1.15!important}#obV2633Today .ob2633-refresh{width:26px!important;height:26px!important;font-size:16px!important}}
 @media(max-width:390px){#obV2633Today .ob2633-item{grid-template-columns:38px minmax(0,1fr) 24px!important;padding:7px 5px!important;gap:4px!important}#obV2633Today .ob2633-image{width:38px!important;height:38px!important}#obV2633Today .ob2633-main{font-size:12px!important}#obV2633Today .ob2633-sub{font-size:8.5px!important}#obV2633Today .ob2633-refresh{width:23px!important;height:23px!important;font-size:14px!important;border-radius:8px!important}}
@@ -2888,7 +2889,7 @@ const SUPABASE_URL="https://mddsmqwfufzebahemxcn.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kZHNtcXdmdWZ6ZWJhaGVteGNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzOTMyMTksImV4cCI6MjEwMTk2OTIxOX0.UXzR227VZ1EBwq4fuGapZQen3ekGvGIzezfvJZbXojY";
 const FOTO_BUCKET="myagari-fot";
 /* V34.15 — rilasci controllati via Supabase. Non cambia i dati degli allevatori. */
-const OB_APP_VERSION="34.18.6";
+const OB_APP_VERSION="34.18.7";
 const OB_RELEASE_CHANNEL=document.querySelector('meta[name="ornibreed-release-channel"]')?.content==="production"?"production":"development";
 const OB_RELEASE_POLL_MS=120000; // Realtime se disponibile, controllo di riserva ogni 2 minuti.
 let obReleaseTimer=null,obReleaseRealtime=null,obReleaseBusy=false,obReleaseSnoozedVersion="",obReleasePending=null,obReleaseLastCheckOk=false;
@@ -2964,11 +2965,12 @@ async function obV34161NotificaRelease(row){
 /* V34.18.1 — informazioni sulle versioni: provenienza Supabase, archivio locale e conferma reale.
    Gli esempi di specie e mutazioni NON sono pubblicati come novità: solo modifiche effettive. */
 const OB_CURRENT_RELEASE={
- version:"34.18.6",title:"OrniAlleva V34.18.6 — Statistiche PDF A4",
+ version:"34.18.7",title:"OrniAlleva V34.18.7 — Catalogo genetico e stabilità",
  notes:[
-  "Statistiche PDF in pagine A4: riquadri interi, senza tagli tra una pagina e l’altra.",
-  "Corretto il controllo degli aggiornamenti installati e del badge notifiche.",
-  "Migliorata la compatibilità di registri e report su iPhone."
+  "Catalogo genetico: 802 combinazioni sottoposte a controllo strutturale; ereditarietà non verificate restano escluse dalle previsioni.",
+  "Registrata la fonte FOI per il riconoscimento espositivo del canarino Mogano, distinta dall’ereditarietà ancora da verificare.",
+  "Corrette la chiusura delle stampe su iPhone e l’immagine interna dell’icona Questa settimana.",
+  "Allineato il sistema di aggiornamento della PWA."
  ],published_at:null
 };
 const OB_RELEASE_HISTORY_KEY="ornibreed_release_history_v1_"+OB_RELEASE_CHANNEL;
@@ -9496,9 +9498,10 @@ function v185ApriDocumento(titolo,html,orientamento="portrait"){
     const tabella=preview.querySelector(".obdev-report-riproduzione .v18-table-wrap");
     if(tabella){tabella.setAttribute("aria-label","Tabella riproduzione: scorri orizzontalmente per vedere tutte le colonne");tabella.setAttribute("tabindex","0");const nota=document.createElement("p");nota.textContent="Scorri la tabella verso destra per leggere tutte le colonne.";nota.className="small";nota.style.cssText="color:#14513f;padding:5px 9px;margin:0;background:#f4f6ed";tabella.parentNode.insertBefore(nota,tabella);}
   }
+  const giaAperta=modal.classList.contains("open");
   modal.classList.add("open");
   modal.setAttribute("aria-hidden","false");
-  obBloccaScroll();
+  if(!giaAperta)obBloccaScroll();
   try{modal.scrollTo(0,0);preview.scrollTop=0;}catch(_){}
 }
 function v185ChiudiDocumento(){
@@ -9506,7 +9509,9 @@ function v185ChiudiDocumento(){
   if(!modal?.classList.contains("open"))return;
   modal.classList.remove("open");
   modal.setAttribute("aria-hidden","true");
+  if(window.obApprovedPreviewResize){window.obApprovedPreviewResize.disconnect();window.obApprovedPreviewResize=null;}
   obSbloccaScroll();
+  if(obScrollLockDepth===0)document.documentElement.style.removeProperty("overflow");
 }
 function v185PrintCss(orientamento="portrait"){
   return `body{font-family:Arial,sans-serif;padding:8mm;color:#17372e;background:#fff}table{width:100%;border-collapse:collapse;font-size:11px}th,td{border:1px solid #9aab9f;padding:5px;text-align:left;vertical-align:top}th{background:#14513f;color:#fff;font-weight:700}tbody tr:nth-child(even){background:#f5f8f5}.v18-metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.v18-metric{border:1px solid #c7d2ca;padding:10px;border-radius:8px;background:#f8faf8}.v18-metric b{display:block;font-size:20px;color:#14513f}.card{margin:12px 0}.owner-head{display:none!important}.blank td{height:28px}.blank-lg td{height:40px}.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.meta-box{border:1px solid #b8c5bd;min-height:32px;padding:7px;border-radius:7px}.section-title{margin-top:18px;margin-bottom:7px;font-size:16px;font-weight:bold;color:#14513f}.ob-report-head{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;border:1px solid #c7a448;border-radius:12px;padding:10px 12px;margin:0 0 14px;background:linear-gradient(90deg,#eff6f0,#fffaf0)}.ob-report-brand{display:flex;flex-direction:column;line-height:1}.ob-report-brand b{font-size:20px;color:#14513f}.ob-report-brand span{font-size:9px;letter-spacing:2px;color:#a77d20;margin-top:3px}.ob-report-title{display:flex;flex-direction:column;text-align:center}.ob-report-title strong{font-size:19px;color:#17372e}.ob-report-title small{font-size:9px;color:#6f7c75;margin-top:3px}.ob-report-meta{display:grid;grid-template-columns:1fr 1fr;gap:3px 10px;font-size:9px;max-width:290px}.ob-report-meta b{color:#14513f}@page{size:A4 ${orientamento};margin:7mm}`;
@@ -9556,7 +9561,11 @@ function obStampaDentroApp(titolo,contenuto,css,formato="A4 portrait",approvato=
     #obPrintInApp .ob-approved-page{width:${formato.includes("landscape")?"297mm":"210mm"}!important;height:${formato.includes("landscape")?"210mm":"297mm"}!important;max-width:none!important;aspect-ratio:auto!important}
   }`+(css||"");
   const oldOverflow=document.documentElement.style.overflow;
-  const close=()=>{overlay.remove();style.remove();document.documentElement.style.overflow=oldOverflow;};
+  const close=()=>{
+    overlay.remove();style.remove();
+    document.documentElement.style.overflow=oldOverflow;
+    if(obScrollLockDepth===0 && document.body.classList.contains("ob-form-open"))obSbloccaScroll(true);
+  };
   back.addEventListener("click",close);
   print.addEventListener("click",()=>{if(approvato&&typeof v263FitFields==="function")v263FitFields(sheet);window.print();});
   document.head.appendChild(style);
@@ -10074,7 +10083,7 @@ async function v186PdfFormato(titolo,html,orientamento="portrait",formato="A4"){
 let v18InstallPrompt=null;
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();v18InstallPrompt=e;$("v18InstallBtn")?.classList.remove("hidden");});
 async function v18Installa(){if(!v18InstallPrompt){obAvviso("Se l'installazione non viene proposta automaticamente, usa il menu del browser e scegli “Aggiungi a schermata Home” / “Installa app”.");return;}v18InstallPrompt.prompt();await v18InstallPrompt.userChoice;v18InstallPrompt=null;$("v18InstallBtn")?.classList.add("hidden");}
-if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("service-worker.js?v=ornialleva-clienti-34-18-6-sync1",{scope:"./",updateViaCache:"none"});reg.update().catch(()=>{});}catch(e){console.warn("Service worker",e);}});}
+if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("service-worker.js?v=ornialleva-clienti-34-18-7-genetics1",{scope:"./",updateViaCache:"none"});reg.update().catch(()=>{});}catch(e){console.warn("Service worker",e);}});}
 function v18Init(){
   v1811InitLingua();
   $("v18MenuBtn")?.addEventListener("click",v18ApriDrawer);$("v18DrawerClose")?.addEventListener("click",v18ChiudiDrawer);$("v18DrawerBackdrop")?.addEventListener("click",v18ChiudiDrawer);$("v18PremiumClose")?.addEventListener("click",v18ChiudiPremium);$("v18InstallBtn")?.addEventListener("click",v18Installa);
@@ -12254,7 +12263,9 @@ function v263OpenPreview(titolo,tipo){
     #v185DocPreview .ob-approved-preview-frame>.ob-approved-page{position:absolute!important;left:0;top:0;width:${w}px!important;height:${h}px!important;aspect-ratio:auto!important;max-width:none!important;transform-origin:top left}
     #v185DocPreview .ob-approved-preview-frame>.ob-approved-page>img{max-width:none!important}
   </style><div class="ob-approved-preview-frame">${v263ApprovedSheet(tipo)}</div>`;
-  modal.classList.add("open");modal.setAttribute("aria-hidden","false");obBloccaScroll();
+  const giaAperta=modal.classList.contains("open");
+  modal.classList.add("open");modal.setAttribute("aria-hidden","false");
+  if(!giaAperta)obBloccaScroll();
   const frame=preview.querySelector(".ob-approved-preview-frame");
   const page=frame?.querySelector(".ob-approved-page");
   const scalePage=()=>{
@@ -12670,7 +12681,7 @@ table{max-width:100%}
           <button class="ob2633-refresh" id="obV2633PhaseRefresh" type="button" aria-label="Aggiorna fase" title="Aggiorna fase">↻</button>
         </div>
         <div class="ob2633-item ob2633-week" id="obV2633WeekItem" role="button" tabindex="0" aria-label="Apri controlli di questa settimana">
-          <div class="ob2633-image" id="obV2633WeekImg" style="background-image:url('assets_embedded/assets_embedded/ob_asset_055_8ed122ae8e.jpg');transform:translateY(-7px)"></div>
+          <div class="ob2633-image" id="obV2633WeekImg"></div>
           <div class="ob2633-content">
             <div class="ob2633-main">Questa settimana</div>
             <div class="ob2633-sub">Da controllare</div>

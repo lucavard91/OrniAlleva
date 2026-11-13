@@ -3227,11 +3227,27 @@ async function obV3415AggiornaOra(origine="avviso"){
  if(!window.confirm("Hai salvato tutte le modifiche? L'app verrà ricaricata per installare la nuova versione."))return;
  const url=obV3415DestinazioneSicura(r.update_url);if(!url)return;
  if(status)status.textContent="Preparazione aggiornamento…";
- try{const reg=await navigator.serviceWorker?.getRegistration?.();
+ try{
+  const reg=await navigator.serviceWorker?.getRegistration?.();
   if(reg){
    await reg.update();
-   if(reg.waiting)reg.waiting.postMessage({type:"SKIP_WAITING"});
-  }}catch(e){console.warn("Service worker:",e);}
+   const waiting=reg.waiting;
+   if(waiting){
+    const activated=new Promise((resolve,reject)=>{
+     const timeout=window.setTimeout(()=>reject(new Error("Attivazione service worker scaduta")),12000);
+     const check=()=>{if(waiting.state==="activated"){window.clearTimeout(timeout);resolve();}};
+     waiting.addEventListener("statechange",check);
+     check();
+    });
+    waiting.postMessage({type:"SKIP_WAITING"});
+    await activated;
+   }
+  }
+ }catch(e){
+  console.warn("Attivazione aggiornamento:",e);
+  if(status)status.textContent="Impossibile confermare l'installazione. Riprova da Impostazioni.";
+  return;
+ }
  url.searchParams.set("ob_release",String(r.version));
  url.searchParams.set("ob_refresh",String(Date.now()));
  location.assign(url.href);

@@ -1,4 +1,4 @@
-const OB_CACHE = "ornialleva-clienti-v34-18-7-genetics1";
+const OB_CACHE = "ornialleva-clienti-v34-18-9";
 const OB_STATIC = [
   "./",
   "./manifest.webmanifest",
@@ -12,13 +12,22 @@ const OB_STATIC = [
 ];
 
 self.addEventListener("install", event => {
-  event.waitUntil(caches.open(OB_CACHE).then(cache => cache.addAll(OB_STATIC)).then(() => self.skipWaiting()));
+  // Do not activate a new worker without an explicit user action.
+  event.waitUntil(caches.open(OB_CACHE).then(cache => cache.addAll(OB_STATIC)));
+});
+
+self.addEventListener("message", event => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    event.waitUntil(self.skipWaiting());
+  }
 });
 
 self.addEventListener("activate", event => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
-    await Promise.all(keys.filter(k => (k.startsWith("ornibreed-") || k.startsWith("ornialleva-")) && k !== OB_CACHE).map(k => caches.delete(k)));
+    await Promise.all(keys.filter(k =>
+      (k.startsWith("ornibreed-") || k.startsWith("ornialleva-")) && k !== OB_CACHE
+    ).map(k => caches.delete(k)));
     await self.clients.claim();
   })());
 });
@@ -35,14 +44,16 @@ self.addEventListener("fetch", event => {
 
   if (req.mode === "navigate") {
     event.respondWith((async () => {
+      const cached = await caches.match("./");
+      if (cached) return cached;
       try {
-        const fresh = await fetch(req, { cache: "no-store" });
+        const fresh = await fetch(req);
         if (!fresh.ok) throw new Error("HTTP " + fresh.status);
         const cache = await caches.open(OB_CACHE);
-        cache.put("./", fresh.clone()).catch(() => {});
+        await cache.put("./", fresh.clone());
         return fresh;
-      } catch (error) {
-        return (await caches.match("./")) || Response.error();
+      } catch (_) {
+        return Response.error();
       }
     })());
     return;
@@ -58,7 +69,7 @@ self.addEventListener("fetch", event => {
         cache.put(req, fresh.clone()).catch(() => {});
       }
       return fresh;
-    } catch (error) {
+    } catch (_) {
       return Response.error();
     }
   })());

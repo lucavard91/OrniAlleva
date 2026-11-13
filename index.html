@@ -4619,7 +4619,12 @@ async function obRimuoviFotoSoggetto(id){
     const {error:fotoError}=await sb.from("soggetti_foto").delete()
       .eq("soggetto_id",id).eq("allevamento_id",allevamentoAttivo.id);
     if(fotoError && !/does not exist|relation/i.test(fotoError.message||""))console.warn("Pulizia foto collegate:",fotoError);
-    await aggiornaSoggetti();
+    const box=document.querySelector('[data-foto-box="'+CSS.escape(String(id))+'"]');
+    if(box)box.innerHTML='<span aria-hidden="true">📷</span><span class="small">Aggiungi una foto</span>';
+    const change=document.querySelector('[data-photo-soggetto="'+CSS.escape(String(id))+'"]');
+    if(change)change.textContent="Carica foto";
+    const remove=document.querySelector('[data-remove-photo-soggetto="'+CSS.escape(String(id))+'"]');
+    if(remove)remove.hidden=true;
     if(window.v248OpHide)window.v248OpHide();
     if(window.v248OpDone)window.v248OpDone("Fotografia rimossa");
     else obAvviso("Fotografia rimossa.");
@@ -4657,10 +4662,13 @@ async function caricaFotoDaScheda(id){
   const save=modal.querySelector("#obFotoSchedaSave");
   input.value="";save.disabled=true;
   preview.textContent="📷 Tocca qui per scegliere una foto";
-  input.onchange=()=>{
-    const file=input.files?.[0];
-    save.disabled=!file;
-    if(file)preview.textContent="📷 "+file.name+" — pronta da salvare";
+  input.onchange=async()=>{
+    save.disabled=true;
+    try{
+      const file=await obPreparaFotoSelezionata(input);
+      save.disabled=!file;
+      preview.textContent=file?"📷 "+file.name+" — pronta da salvare":"📷 Tocca qui per scegliere una foto";
+    }catch(e){input.value="";preview.textContent="📷 Tocca qui per scegliere una foto";errore(e);}
   };
   save.onclick=async()=>{
     const file=input.files?.[0];if(!file){obAvviso("Scegli prima una foto.");return;}
@@ -4672,7 +4680,7 @@ async function caricaFotoDaScheda(id){
       if(!row?.foto_url)throw new Error("La foto non risulta salvata nel soggetto.");
       modal.remove();
       if(window.v248OpHide)window.v248OpHide();
-      await aggiornaSoggetti();
+      await obV436ApriSoggetto(id);
       if(window.v248OpDone)window.v248OpDone("Foto salvata sul soggetto");
       else obAvviso("Foto salvata sul soggetto.");
     }catch(e){
@@ -4680,6 +4688,151 @@ async function caricaFotoDaScheda(id){
       errore(e);
     }finally{save.disabled=false;save.textContent="Salva foto";}
   };
+}
+async function obRitagliaFotoSoggetto(file){
+  if(!file?.type?.startsWith("image/"))throw new Error("Seleziona una fotografia valida.");
+  const url=URL.createObjectURL(file);
+  let image;
+  try{image=await new Promise((resolve,reject)=>{
+    const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error("Fotografia non leggibile."));img.src=url;
+  });}finally{URL.revokeObjectURL(url);}
+  return new Promise(resolve=>{
+    const overlay=document.createElement("div");overlay.className="ob-pair-modal open";
+    const dialog=document.createElement("div");dialog.className="ob-pair-dialog";
+    dialog.setAttribute("role","dialog");dialog.setAttribute("aria-modal","true");
+    dialog.setAttribute("aria-label","Ritaglia fotografia");dialog.style.maxWidth="480px";
+    const heading=document.createElement("h3");heading.textContent="✂️ Ritaglia fotografia";
+    const hint=document.createElement("p");hint.className="small";hint.textContent="Trascina i quattro angoli per ritagliare liberamente; usa due dita per ingrandire.";
+    const canvas=document.createElement("canvas");canvas.width=600;canvas.height=600;
+    canvas.style.cssText="display:block;width:100%;max-height:57vh;object-fit:contain;background:#202020;border-radius:10px;touch-action:none";
+    const toolbar=document.createElement("div");toolbar.className="actions";
+    const left=document.createElement("button");left.type="button";left.className="secondary";left.textContent="↶ Ruota";
+    const right=document.createElement("button");right.type="button";right.className="secondary";right.textContent="↷ Ruota";
+    const reset=document.createElement("button");reset.type="button";reset.className="secondary";reset.textContent="Ripristina";
+    toolbar.append(left,right,reset);
+    const actions=document.createElement("div");actions.className="actions";
+    const original=document.createElement("button");original.type="button";original.className="secondary";original.textContent="Originale";
+    const cancel=document.createElement("button");cancel.type="button";cancel.className="secondary";cancel.textContent="Annulla";
+    const save=document.createElement("button");save.type="button";save.className="success";save.textContent="Salva ritaglio";
+    actions.append(original,cancel,save);
+    dialog.append(heading,hint,canvas,toolbar,actions);overlay.appendChild(dialog);document.body.appendChild(overlay);
+    const ctx=canvas.getContext("2d");
+    let turn=0,rect=null,drag=null,view=null,zoom=1,panX=0,panY=0,pinch=null;
+    const touches=new Map();
+    const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+    const rotated=()=>((turn%180+180)%180===90)?{w:image.naturalHeight,h:image.naturalWidth}:{w:image.naturalWidth,h:image.naturalHeight};
+    const resetRect=()=>{const {w,h}=rotated();const side=Math.min(w,h)*0.7;rect={x:(w-side)/2,y:(h-side)/2,w:side,h:side};};
+    const draw=()=>{
+      const {w,h}=rotated();
+      const scale=Math.min(canvas.width/w,canvas.height/h)*zoom;
+      const ox=(canvas.width-w*scale)/2+panX,oy=(canvas.height-h*scale)/2+panY;
+      view={scale,ox,oy,w,h};
+      ctx.clearRect(0,0,600,600);ctx.fillStyle="#202020";ctx.fillRect(0,0,600,600);
+      ctx.save();ctx.translate(ox+w*scale/2,oy+h*scale/2);ctx.rotate(turn*Math.PI/180);
+      ctx.drawImage(image,-image.naturalWidth*scale/2,-image.naturalHeight*scale/2,image.naturalWidth*scale,image.naturalHeight*scale);
+      ctx.restore();
+      ctx.fillStyle="rgba(0,0,0,.52)";
+      const x=ox+rect.x*scale,y=oy+rect.y*scale,rw=rect.w*scale,rh=rect.h*scale;
+      ctx.fillRect(ox,oy,w*scale,Math.max(0,y-oy));ctx.fillRect(ox,y,Math.max(0,x-ox),rh);
+      ctx.fillRect(x+rw,y,Math.max(0,ox+w*scale-x-rw),rh);
+      ctx.fillRect(ox,y+rh,w*scale,Math.max(0,oy+h*scale-y-rh));
+      ctx.strokeStyle="#fff";ctx.lineWidth=3;ctx.strokeRect(x,y,rw,rh);
+      ctx.lineWidth=1;ctx.globalAlpha=.6;
+      for(let i=1;i<3;i++){ctx.beginPath();ctx.moveTo(x+rw*i/3,y);ctx.lineTo(x+rw*i/3,y+rh);ctx.moveTo(x,y+rh*i/3);ctx.lineTo(x+rw,y+rh*i/3);ctx.stroke();}
+      ctx.globalAlpha=1;ctx.fillStyle="#fff";for(const [hx,hy] of [[x,y],[x+rw,y],[x,y+rh],[x+rw,y+rh]])ctx.fillRect(hx-10,hy-10,20,20);
+    };
+    const coords=e=>{const b=canvas.getBoundingClientRect();return {x:(e.clientX-b.left)*600/b.width,y:(e.clientY-b.top)*600/b.height};};
+    canvas.addEventListener("pointerdown",e=>{
+      const p=coords(e);touches.set(e.pointerId,p);canvas.setPointerCapture(e.pointerId);
+      if(touches.size===2){const [p1,p2]=[...touches.values()];pinch={distance:Math.hypot(p2.x-p1.x,p2.y-p1.y),zoom,panX,panY,midX:(p1.x+p2.x)/2,midY:(p1.y+p2.y)/2};drag=null;return;}
+      if(touches.size>2)return;
+      const {scale,ox,oy}=view;
+      const x=ox+rect.x*scale,y=oy+rect.y*scale,w=rect.w*scale,h=rect.h*scale;
+      if(p.x<x-12||p.x>x+w+20||p.y<y-12||p.y>y+h+20)return;
+      const corners=[{name:"tl",x,y},{name:"tr",x:x+w,y},{name:"bl",x,y:y+h},{name:"br",x:x+w,y:y+h}];
+      const hit=corners.find(c=>Math.abs(p.x-c.x)<35&&Math.abs(p.y-c.y)<35);
+      drag={p,rect:{...rect},corner:hit?.name||null};
+      canvas.setPointerCapture(e.pointerId);
+    });
+    canvas.addEventListener("pointermove",e=>{
+      if(!touches.has(e.pointerId))return;
+      const p=coords(e);touches.set(e.pointerId,p);
+      if(pinch&&touches.size>=2){
+        const [p1,p2]=[...touches.values()];const distance=Math.hypot(p2.x-p1.x,p2.y-p1.y);
+        const next=clamp(pinch.zoom*distance/Math.max(1,pinch.distance),1,6);
+        const midX=(p1.x+p2.x)/2,midY=(p1.y+p2.y)/2,ratio=next/pinch.zoom;
+        panX=pinch.panX+(midX-pinch.midX)+(pinch.midX-300-pinch.panX)*(1-ratio);
+        panY=pinch.panY+(midY-pinch.midY)+(pinch.midY-300-pinch.panY)*(1-ratio);
+        zoom=next;draw();return;
+      }
+      if(!drag)return;
+      const dx=(p.x-drag.p.x)/view.scale,dy=(p.y-drag.p.y)/view.scale;
+      if(drag.corner){
+        const min=Math.min(view.w,view.h)*.08,r=drag.rect;
+        let x1=r.x,y1=r.y,x2=r.x+r.w,y2=r.y+r.h;
+        if(drag.corner.includes("l"))x1=clamp(r.x+dx,0,x2-min);
+        if(drag.corner.includes("r"))x2=clamp(r.x+r.w+dx,x1+min,view.w);
+        if(drag.corner.includes("t"))y1=clamp(r.y+dy,0,y2-min);
+        if(drag.corner.includes("b"))y2=clamp(r.y+r.h+dy,y1+min,view.h);
+        rect={x:x1,y:y1,w:x2-x1,h:y2-y1};
+      }else{
+        rect={...drag.rect,x:clamp(drag.rect.x+dx,0,view.w-drag.rect.w),y:clamp(drag.rect.y+dy,0,view.h-drag.rect.h)};
+      }
+      draw();
+    });
+    // iOS Safari/PWA: gestisce direttamente il gesto a due dita, senza dipendere dai PointerEvent.
+    let touchPinch=null;
+    const touchPoint=t=>coords({clientX:t.clientX,clientY:t.clientY});
+    canvas.addEventListener("touchstart",e=>{
+      if(e.touches.length!==2)return;
+      e.preventDefault();drag=null;
+      const a=touchPoint(e.touches[0]),b=touchPoint(e.touches[1]);
+      touchPinch={distance:Math.hypot(a.x-b.x,a.y-b.y),zoom,panX,panY,midX:(a.x+b.x)/2,midY:(a.y+b.y)/2};
+    },{passive:false});
+    canvas.addEventListener("touchmove",e=>{
+      if(e.touches.length!==2||!touchPinch)return;
+      e.preventDefault();
+      const a=touchPoint(e.touches[0]),b=touchPoint(e.touches[1]);
+      const distance=Math.hypot(a.x-b.x,a.y-b.y);
+      const next=clamp(touchPinch.zoom*distance/Math.max(1,touchPinch.distance),1,6);
+      const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,ratio=next/touchPinch.zoom;
+      panX=touchPinch.panX+(mx-touchPinch.midX)+(touchPinch.midX-300-touchPinch.panX)*(1-ratio);
+      panY=touchPinch.panY+(my-touchPinch.midY)+(touchPinch.midY-300-touchPinch.panY)*(1-ratio);
+      zoom=next;draw();
+    },{passive:false});
+    canvas.addEventListener("touchend",e=>{if(e.touches.length<2)touchPinch=null;},{passive:true});
+    canvas.addEventListener("touchcancel",()=>{touchPinch=null;},{passive:true});
+    const stopPointer=e=>{touches.delete(e.pointerId);drag=null;if(touches.size<2)pinch=null;};
+    canvas.addEventListener("pointerup",stopPointer);
+    canvas.addEventListener("pointercancel",stopPointer);
+    left.onclick=()=>{turn=(turn+270)%360;zoom=1;panX=0;panY=0;resetRect();draw();};
+    right.onclick=()=>{turn=(turn+90)%360;zoom=1;panX=0;panY=0;resetRect();draw();};
+    reset.onclick=()=>{turn=0;zoom=1;panX=0;panY=0;resetRect();draw();};
+    const finish=value=>{overlay.remove();resolve(value);};
+    original.onclick=()=>finish(file);cancel.onclick=()=>finish(null);
+    save.onclick=()=>{
+      const output=document.createElement("canvas");output.width=Math.max(1,Math.round(rect.w));output.height=Math.max(1,Math.round(rect.h));
+      const c=output.getContext("2d");
+      c.translate(-rect.x,-rect.y);
+      const {w,h}=rotated();
+      c.translate(w/2,h/2);c.rotate(turn*Math.PI/180);
+      c.drawImage(image,-image.naturalWidth/2,-image.naturalHeight/2);
+      output.toBlob(blob=>{
+        if(!blob){obAvviso("Impossibile salvare il ritaglio.");return;}
+        finish(new File([blob],file.name.replace(/\\.[^.]+$/,"")+"_ritaglio.jpg",{type:"image/jpeg",lastModified:Date.now()}));
+      },"image/jpeg",.94);
+    };
+    resetRect();draw();
+  });
+}
+async function obPreparaFotoSelezionata(input){
+  const selected=input.files?.[0];if(!selected)return null;
+  const prepared=await obRitagliaFotoSoggetto(selected);
+  if(!prepared){input.value="";return null;}
+  if(prepared!==selected){
+    const transfer=new DataTransfer();transfer.items.add(prepared);input.files=transfer.files;
+  }
+  return prepared;
 }
 function obFotoEditorInit(){
   const input=document.getElementById("s_foto_file");
@@ -4700,8 +4853,10 @@ function obFotoEditorInit(){
   box.appendChild(caption);
   if(!input.dataset.obFotoPreviewBound){
     input.dataset.obFotoPreviewBound="1";
-    input.addEventListener("change",()=>{
-      const file=input.files?.[0];if(!file)return;
+    input.addEventListener("change",async()=>{
+      let file;
+      try{file=await obPreparaFotoSelezionata(input);}catch(e){input.value="";errore(e);return;}
+      if(!file)return;
       const wrap=document.getElementById("obFotoEditorPick");if(!wrap)return;
       wrap.replaceChildren();
       const img=document.createElement("img");

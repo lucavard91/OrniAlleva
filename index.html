@@ -16,7 +16,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="preload" as="image" href="https://lucavard91.github.io/OrniAlleva-Sviluppo/OrniAlleva_Banner_Interno.png?v=20261101" fetchpriority="high">
-<title>OrniAlleva — Smart Aviculture Management</title><meta name="ornibreed-version" content="V34.18.8"><meta name="ornibreed-release-channel" content="production">
+<title>OrniAlleva — Smart Aviculture Management</title><meta name="ornibreed-version" content="V35.0.0"><meta name="ornibreed-release-channel" content="production">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -757,6 +757,12 @@ html:has(body.ob-catalog-locked){overflow:hidden!important}body.ob-catalog-locke
 .v18-print-only{display:none}
 @media(max-width:640px){.v18-profile-row{grid-template-columns:1fr}.v18-avatar{margin:auto}.v18-topbar-title{font-size:14px}}
 @media print{.v18-topbar,#v18Drawer,#v18DrawerBackdrop,.back,.page-title button,.v18-no-print,header{display:none!important}.container{max-width:none!important}.card{box-shadow:none!important;border:1px solid #ddd!important}.v18-print-only{display:block}}
+@keyframes obAiScanTravel{0%{top:0%}50%{top:calc(100% - 4px)}100%{top:0%}}
+.ai-foto-wrap.ob-ai-scanning{position:relative;overflow:hidden}
+.ai-foto-wrap .ob-ai-scan-line{display:none}
+.ai-foto-wrap.ob-ai-scanning .ob-ai-scan-line{display:block}
+.ob-ai-scan-line{position:absolute;left:0;right:0;top:0;height:4px;background:#67ffcf;box-shadow:0 0 12px 4px rgba(45,255,200,.65);animation:obAiScanTravel 3.2s ease-in-out infinite;pointer-events:none}
+@media(prefers-reduced-motion:reduce){.ob-ai-scan-line{animation:none;top:50%}}
 </style>
 <!-- PWA metadata centralizzati nel blocco <head> principale - V26.31 -->
 <style>
@@ -909,7 +915,7 @@ section[id]:not(#home) .card input,section[id]:not(#home) .card select,section[i
 .ob-record-icon{width:30px;height:30px;object-fit:cover;border-radius:8px;vertical-align:middle;margin-right:8px;box-shadow:0 2px 7px rgba(0,0,0,.14);border:1px solid rgba(201,160,55,.45)}
 .ob-action-icon{width:25px;height:25px;object-fit:cover;border-radius:7px;vertical-align:middle;margin-right:7px;box-shadow:0 1px 5px rgba(0,0,0,.12)}
 button.ob-action{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:6px!important}
-button.ob-action::before{content:"";width:25px;height:25px;flex:0 0 25px;border-radius:7px;background-size:cover;background-position:center;box-shadow:0 1px 5px rgba(0,0,0,.12)}
+button.ob-action::before{content:"";width:32px;height:32px;flex:0 0 32px;border-radius:7px;background-size:contain;background-position:center center;background-repeat:no-repeat;box-shadow:0 1px 5px rgba(0,0,0,.12)}
 button.ob-act-modifica::before{background-image:url("assets_embedded/assets_embedded/ob_asset_003_0e9ad21616.jpg")}
 button.ob-act-foto::before{background-image:url("assets_embedded/assets_embedded/ob_asset_004_9a860456d5.jpg")}
 button.ob-act-ai::before{background-image:url("assets_embedded/assets_embedded/ob_asset_005_cc38f88be0.jpg")}
@@ -1946,12 +1952,12 @@ html.ob-return-from-admin #obAdminReturnTransition,#obAdminReturnTransition.ob-t
     <div data-page="agenda_allevatori" role="button" tabindex="0" class="card ob-home-nav-card ob-v2615-agenda-home"><h2 class="ob-icon-title"><img class="ob-section-icon" src="assets_embedded/assets_embedded/ob_asset_034_877cc268ae.jpg" alt=""><span>Contatti / Agenda allevatori</span></h2><p>Rubrica personale degli allevatori con contatti, RNA, specie e note.</p><span class="ob-home-nav-chevron" aria-hidden="true">›</span></div>
     <div data-page="contabilita" role="button" tabindex="0" class="card ob-home-nav-card"><h2 class="ob-icon-title"><img class="ob-section-icon" src="assets_embedded/assets_embedded/ob_asset_033_9d3816e888.jpg" alt=""> <span>Entrate e uscite</span></h2><p>Gestisci costi, entrate e saldo dell'allevamento.</p><span class="ob-home-nav-chevron" aria-hidden="true">›</span></div>
     <div data-page="guida" role="button" tabindex="0" class="card ob-home-nav-card">
-      <h3 class="ob-icon-title"><span class="ob-section-icon" style="position:relative;display:block;overflow:hidden;flex-shrink:0;width:38px!important;height:38px!important;min-width:38px!important;max-width:38px!important;flex-basis:38px!important;transform:none"><img src="ornialleva_icona_guida.png?v=20261103-brand2" alt="" style="position:absolute;width:132%;height:132%;left:-16%;top:-16%;max-width:none;object-fit:cover"></span> <span>Guida all'uso di OrniAlleva</span></h3>
+      <h2 class="ob-icon-title"><img class="ob-section-icon" src="ornialleva_icona_guida.png?v=20261103-brand2" alt=""> <span>Guida all'uso di OrniAlleva</span></h2>
       <p>Istruzioni semplici, passo per passo, per utilizzare tutte le sezioni dell'applicazione.</p>
       <span class="ob-home-nav-chevron" aria-hidden="true">›</span>
     </div>
     <div data-page="impostazioni" role="button" tabindex="0" class="card ob-home-nav-card ob-v2612-settings-home">
-      <h3 class="ob-icon-title"><span class="ob-section-icon" style="position:relative;display:block;overflow:hidden;flex-shrink:0;width:38px!important;height:38px!important;min-width:38px!important;max-width:38px!important;flex-basis:38px!important;transform:none"><img src="ornibreed_impostazioni_v2.png?v=20261110-icons" alt="" style="position:absolute;width:114%;height:114%;left:-7%;top:-7%;max-width:none;object-fit:cover"></span><span>Impostazioni</span></h3>
+      <h2 class="ob-icon-title"><img class="ob-section-icon" src="ornibreed_impostazioni_v2.png?v=20261110-icons" alt=""><span>Impostazioni</span></h2>
       <p>Personalizza OrniAlleva, gestisci contatti, notifiche, temi e dati.</p>
       <span class="ob-home-nav-chevron" aria-hidden="true">›</span>
     </div>
@@ -2941,7 +2947,7 @@ const SUPABASE_URL="https://mddsmqwfufzebahemxcn.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kZHNtcXdmdWZ6ZWJhaGVteGNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzOTMyMTksImV4cCI6MjEwMTk2OTIxOX0.UXzR227VZ1EBwq4fuGapZQen3ekGvGIzezfvJZbXojY";
 const FOTO_BUCKET="myagari-fot";
 /* V34.15 — rilasci controllati via Supabase. Non cambia i dati degli allevatori. */
-const OB_APP_VERSION="34.18.8";
+const OB_APP_VERSION="35.0.0";
 const OB_RELEASE_CHANNEL=document.querySelector('meta[name="ornibreed-release-channel"]')?.content==="production"?"production":"development";
 const OB_RELEASE_POLL_MS=120000; // Realtime se disponibile, controllo di riserva ogni 2 minuti.
 let obReleaseTimer=null,obReleaseRealtime=null,obReleaseBusy=false,obReleaseSnoozedVersion="",obReleasePending=null,obReleaseLastCheckOk=false;
@@ -3017,7 +3023,7 @@ async function obV34161NotificaRelease(row){
 /* V34.18.1 — informazioni sulle versioni: provenienza Supabase, archivio locale e conferma reale.
    Gli esempi di specie e mutazioni NON sono pubblicati come novità: solo modifiche effettive. */
 const OB_CURRENT_RELEASE={
- version:"34.18.8",title:"OrniAlleva V34.18.8 — Catalogo genetico e stabilità",
+ version:"35.0.0",title:"OrniAlleva V35.0.0 — Aggiornamento funzionalità",
  notes:[
   "Catalogo genetico: 802 combinazioni sottoposte a controllo strutturale; ereditarietà non verificate restano escluse dalle previsioni.",
   "Registrata la fonte FOI per il riconoscimento espositivo del canarino Mogano, distinta dall’ereditarietà ancora da verificare.",
@@ -3816,11 +3822,27 @@ async function obChatChoose(kind){
    search.addEventListener("input",render);render();
   }else if(kind==="direct"){
    const me=await utenteCorrente();
-   const {data,error}=await sb.from("ob_chat_messages").select("sender_id,recipient_id").eq("room_kind","direct").order("created_at",{ascending:false}).limit(150);
+   const {data,error}=await sb.from("ob_chat_messages").select("sender_id,recipient_id,body,created_at").eq("room_kind","direct").is("deleted_at",null).order("created_at",{ascending:false}).limit(150);
    if(error)throw error;
-   const ids=[...new Set((data||[]).map(x=>x.sender_id===me.id?x.recipient_id:x.sender_id).filter(x=>x&&x!==me.id))];
-   if(!ids.length){const p=document.createElement("p");p.textContent="Non hai ancora conversazioni private.";rooms.append(p);}
-   ids.forEach((id,i)=>add("Conversazione "+(i+1),()=>obChatRoom("direct",null,null,id,"Messaggi privati")));
+   const recent=new Map();
+   for(const m of data||[]){
+    if(m.sender_id!==me.id&&m.recipient_id!==me.id)continue;
+    const id=m.sender_id===me.id?m.recipient_id:m.sender_id;
+    if(id&&id!==me.id&&!recent.has(id))recent.set(id,m);
+   }
+   if(!recent.size){const p=document.createElement("p");p.textContent="Non hai ancora conversazioni private.";rooms.append(p);}
+   for(const [id,m] of recent){
+    const {data:profiles}=await sb.rpc("ob_chat_public_identity",{p_user_id:id});
+    const profile=profiles?.[0];
+    const name=[profile?.nome,profile?.cognome].filter(Boolean).join(" ")||"Allevatore";
+    const btn=document.createElement("button");btn.type="button";
+    const title=document.createElement("strong");title.textContent=name;
+    const preview=document.createElement("small");preview.textContent=(m.sender_id===me.id?"Tu: ":"")+(m.body||"").slice(0,90);
+    const when=document.createElement("small");when.textContent=new Date(m.created_at).toLocaleString("it-IT");
+    btn.append(title,document.createElement("br"),preview,document.createElement("br"),when);
+    btn.addEventListener("click",()=>obChatRoom("direct",null,null,id,name));
+    rooms.append(btn);
+   }
   }
  }catch(e){obChatError(e.message||"Errore caricamento stanze.");}
 }
@@ -4619,7 +4641,12 @@ async function obRimuoviFotoSoggetto(id){
     const {error:fotoError}=await sb.from("soggetti_foto").delete()
       .eq("soggetto_id",id).eq("allevamento_id",allevamentoAttivo.id);
     if(fotoError && !/does not exist|relation/i.test(fotoError.message||""))console.warn("Pulizia foto collegate:",fotoError);
-    await aggiornaSoggetti();
+    const box=document.querySelector('[data-foto-box="'+CSS.escape(String(id))+'"]');
+    if(box)box.innerHTML='<span aria-hidden="true">📷</span><span class="small">Aggiungi una foto</span>';
+    const change=document.querySelector('[data-photo-soggetto="'+CSS.escape(String(id))+'"]');
+    if(change)change.textContent="Carica foto";
+    const remove=document.querySelector('[data-remove-photo-soggetto="'+CSS.escape(String(id))+'"]');
+    if(remove)remove.hidden=true;
     if(window.v248OpHide)window.v248OpHide();
     if(window.v248OpDone)window.v248OpDone("Fotografia rimossa");
     else obAvviso("Fotografia rimossa.");
@@ -4657,10 +4684,13 @@ async function caricaFotoDaScheda(id){
   const save=modal.querySelector("#obFotoSchedaSave");
   input.value="";save.disabled=true;
   preview.textContent="📷 Tocca qui per scegliere una foto";
-  input.onchange=()=>{
-    const file=input.files?.[0];
-    save.disabled=!file;
-    if(file)preview.textContent="📷 "+file.name+" — pronta da salvare";
+  input.onchange=async()=>{
+    save.disabled=true;
+    try{
+      const file=await obPreparaFotoSelezionata(input);
+      save.disabled=!file;
+      preview.textContent=file?"📷 "+file.name+" — pronta da salvare":"📷 Tocca qui per scegliere una foto";
+    }catch(e){input.value="";preview.textContent="📷 Tocca qui per scegliere una foto";errore(e);}
   };
   save.onclick=async()=>{
     const file=input.files?.[0];if(!file){obAvviso("Scegli prima una foto.");return;}
@@ -4672,7 +4702,7 @@ async function caricaFotoDaScheda(id){
       if(!row?.foto_url)throw new Error("La foto non risulta salvata nel soggetto.");
       modal.remove();
       if(window.v248OpHide)window.v248OpHide();
-      await aggiornaSoggetti();
+      await obV436ApriSoggetto(id);
       if(window.v248OpDone)window.v248OpDone("Foto salvata sul soggetto");
       else obAvviso("Foto salvata sul soggetto.");
     }catch(e){
@@ -4680,6 +4710,151 @@ async function caricaFotoDaScheda(id){
       errore(e);
     }finally{save.disabled=false;save.textContent="Salva foto";}
   };
+}
+async function obRitagliaFotoSoggetto(file){
+  if(!file?.type?.startsWith("image/"))throw new Error("Seleziona una fotografia valida.");
+  const url=URL.createObjectURL(file);
+  let image;
+  try{image=await new Promise((resolve,reject)=>{
+    const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error("Fotografia non leggibile."));img.src=url;
+  });}finally{URL.revokeObjectURL(url);}
+  return new Promise(resolve=>{
+    const overlay=document.createElement("div");overlay.className="ob-pair-modal open";
+    const dialog=document.createElement("div");dialog.className="ob-pair-dialog";
+    dialog.setAttribute("role","dialog");dialog.setAttribute("aria-modal","true");
+    dialog.setAttribute("aria-label","Ritaglia fotografia");dialog.style.maxWidth="480px";
+    const heading=document.createElement("h3");heading.textContent="✂️ Ritaglia fotografia";
+    const hint=document.createElement("p");hint.className="small";hint.textContent="Trascina i quattro angoli per ritagliare liberamente; usa due dita per ingrandire.";
+    const canvas=document.createElement("canvas");canvas.width=600;canvas.height=600;
+    canvas.style.cssText="display:block;width:100%;max-height:57vh;object-fit:contain;background:#202020;border-radius:10px;touch-action:none";
+    const toolbar=document.createElement("div");toolbar.className="actions";
+    const left=document.createElement("button");left.type="button";left.className="secondary";left.textContent="↶ Ruota";
+    const right=document.createElement("button");right.type="button";right.className="secondary";right.textContent="↷ Ruota";
+    const reset=document.createElement("button");reset.type="button";reset.className="secondary";reset.textContent="Ripristina";
+    toolbar.append(left,right,reset);
+    const actions=document.createElement("div");actions.className="actions";
+    const original=document.createElement("button");original.type="button";original.className="secondary";original.textContent="Originale";
+    const cancel=document.createElement("button");cancel.type="button";cancel.className="secondary";cancel.textContent="Annulla";
+    const save=document.createElement("button");save.type="button";save.className="success";save.textContent="Salva ritaglio";
+    actions.append(original,cancel,save);
+    dialog.append(heading,hint,canvas,toolbar,actions);overlay.appendChild(dialog);document.body.appendChild(overlay);
+    const ctx=canvas.getContext("2d");
+    let turn=0,rect=null,drag=null,view=null,zoom=1,panX=0,panY=0,pinch=null;
+    const touches=new Map();
+    const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+    const rotated=()=>((turn%180+180)%180===90)?{w:image.naturalHeight,h:image.naturalWidth}:{w:image.naturalWidth,h:image.naturalHeight};
+    const resetRect=()=>{const {w,h}=rotated();const side=Math.min(w,h)*0.7;rect={x:(w-side)/2,y:(h-side)/2,w:side,h:side};};
+    const draw=()=>{
+      const {w,h}=rotated();
+      const scale=Math.min(canvas.width/w,canvas.height/h)*zoom;
+      const ox=(canvas.width-w*scale)/2+panX,oy=(canvas.height-h*scale)/2+panY;
+      view={scale,ox,oy,w,h};
+      ctx.clearRect(0,0,600,600);ctx.fillStyle="#202020";ctx.fillRect(0,0,600,600);
+      ctx.save();ctx.translate(ox+w*scale/2,oy+h*scale/2);ctx.rotate(turn*Math.PI/180);
+      ctx.drawImage(image,-image.naturalWidth*scale/2,-image.naturalHeight*scale/2,image.naturalWidth*scale,image.naturalHeight*scale);
+      ctx.restore();
+      ctx.fillStyle="rgba(0,0,0,.52)";
+      const x=ox+rect.x*scale,y=oy+rect.y*scale,rw=rect.w*scale,rh=rect.h*scale;
+      ctx.fillRect(ox,oy,w*scale,Math.max(0,y-oy));ctx.fillRect(ox,y,Math.max(0,x-ox),rh);
+      ctx.fillRect(x+rw,y,Math.max(0,ox+w*scale-x-rw),rh);
+      ctx.fillRect(ox,y+rh,w*scale,Math.max(0,oy+h*scale-y-rh));
+      ctx.strokeStyle="#fff";ctx.lineWidth=3;ctx.strokeRect(x,y,rw,rh);
+      ctx.lineWidth=1;ctx.globalAlpha=.6;
+      for(let i=1;i<3;i++){ctx.beginPath();ctx.moveTo(x+rw*i/3,y);ctx.lineTo(x+rw*i/3,y+rh);ctx.moveTo(x,y+rh*i/3);ctx.lineTo(x+rw,y+rh*i/3);ctx.stroke();}
+      ctx.globalAlpha=1;ctx.fillStyle="#fff";for(const [hx,hy] of [[x,y],[x+rw,y],[x,y+rh],[x+rw,y+rh]])ctx.fillRect(hx-10,hy-10,20,20);
+    };
+    const coords=e=>{const b=canvas.getBoundingClientRect();return {x:(e.clientX-b.left)*600/b.width,y:(e.clientY-b.top)*600/b.height};};
+    canvas.addEventListener("pointerdown",e=>{
+      const p=coords(e);touches.set(e.pointerId,p);canvas.setPointerCapture(e.pointerId);
+      if(touches.size===2){const [p1,p2]=[...touches.values()];pinch={distance:Math.hypot(p2.x-p1.x,p2.y-p1.y),zoom,panX,panY,midX:(p1.x+p2.x)/2,midY:(p1.y+p2.y)/2};drag=null;return;}
+      if(touches.size>2)return;
+      const {scale,ox,oy}=view;
+      const x=ox+rect.x*scale,y=oy+rect.y*scale,w=rect.w*scale,h=rect.h*scale;
+      if(p.x<x-12||p.x>x+w+20||p.y<y-12||p.y>y+h+20)return;
+      const corners=[{name:"tl",x,y},{name:"tr",x:x+w,y},{name:"bl",x,y:y+h},{name:"br",x:x+w,y:y+h}];
+      const hit=corners.find(c=>Math.abs(p.x-c.x)<35&&Math.abs(p.y-c.y)<35);
+      drag={p,rect:{...rect},corner:hit?.name||null};
+      canvas.setPointerCapture(e.pointerId);
+    });
+    canvas.addEventListener("pointermove",e=>{
+      if(!touches.has(e.pointerId))return;
+      const p=coords(e);touches.set(e.pointerId,p);
+      if(pinch&&touches.size>=2){
+        const [p1,p2]=[...touches.values()];const distance=Math.hypot(p2.x-p1.x,p2.y-p1.y);
+        const next=clamp(pinch.zoom*distance/Math.max(1,pinch.distance),1,6);
+        const midX=(p1.x+p2.x)/2,midY=(p1.y+p2.y)/2,ratio=next/pinch.zoom;
+        panX=pinch.panX+(midX-pinch.midX)+(pinch.midX-300-pinch.panX)*(1-ratio);
+        panY=pinch.panY+(midY-pinch.midY)+(pinch.midY-300-pinch.panY)*(1-ratio);
+        zoom=next;draw();return;
+      }
+      if(!drag)return;
+      const dx=(p.x-drag.p.x)/view.scale,dy=(p.y-drag.p.y)/view.scale;
+      if(drag.corner){
+        const min=Math.min(view.w,view.h)*.08,r=drag.rect;
+        let x1=r.x,y1=r.y,x2=r.x+r.w,y2=r.y+r.h;
+        if(drag.corner.includes("l"))x1=clamp(r.x+dx,0,x2-min);
+        if(drag.corner.includes("r"))x2=clamp(r.x+r.w+dx,x1+min,view.w);
+        if(drag.corner.includes("t"))y1=clamp(r.y+dy,0,y2-min);
+        if(drag.corner.includes("b"))y2=clamp(r.y+r.h+dy,y1+min,view.h);
+        rect={x:x1,y:y1,w:x2-x1,h:y2-y1};
+      }else{
+        rect={...drag.rect,x:clamp(drag.rect.x+dx,0,view.w-drag.rect.w),y:clamp(drag.rect.y+dy,0,view.h-drag.rect.h)};
+      }
+      draw();
+    });
+    // iOS Safari/PWA: gestisce direttamente il gesto a due dita, senza dipendere dai PointerEvent.
+    let touchPinch=null;
+    const touchPoint=t=>coords({clientX:t.clientX,clientY:t.clientY});
+    canvas.addEventListener("touchstart",e=>{
+      if(e.touches.length!==2)return;
+      e.preventDefault();drag=null;
+      const a=touchPoint(e.touches[0]),b=touchPoint(e.touches[1]);
+      touchPinch={distance:Math.hypot(a.x-b.x,a.y-b.y),zoom,panX,panY,midX:(a.x+b.x)/2,midY:(a.y+b.y)/2};
+    },{passive:false});
+    canvas.addEventListener("touchmove",e=>{
+      if(e.touches.length!==2||!touchPinch)return;
+      e.preventDefault();
+      const a=touchPoint(e.touches[0]),b=touchPoint(e.touches[1]);
+      const distance=Math.hypot(a.x-b.x,a.y-b.y);
+      const next=clamp(touchPinch.zoom*distance/Math.max(1,touchPinch.distance),1,6);
+      const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,ratio=next/touchPinch.zoom;
+      panX=touchPinch.panX+(mx-touchPinch.midX)+(touchPinch.midX-300-touchPinch.panX)*(1-ratio);
+      panY=touchPinch.panY+(my-touchPinch.midY)+(touchPinch.midY-300-touchPinch.panY)*(1-ratio);
+      zoom=next;draw();
+    },{passive:false});
+    canvas.addEventListener("touchend",e=>{if(e.touches.length<2)touchPinch=null;},{passive:true});
+    canvas.addEventListener("touchcancel",()=>{touchPinch=null;},{passive:true});
+    const stopPointer=e=>{touches.delete(e.pointerId);drag=null;if(touches.size<2)pinch=null;};
+    canvas.addEventListener("pointerup",stopPointer);
+    canvas.addEventListener("pointercancel",stopPointer);
+    left.onclick=()=>{turn=(turn+270)%360;zoom=1;panX=0;panY=0;resetRect();draw();};
+    right.onclick=()=>{turn=(turn+90)%360;zoom=1;panX=0;panY=0;resetRect();draw();};
+    reset.onclick=()=>{turn=0;zoom=1;panX=0;panY=0;resetRect();draw();};
+    const finish=value=>{overlay.remove();resolve(value);};
+    original.onclick=()=>finish(file);cancel.onclick=()=>finish(null);
+    save.onclick=()=>{
+      const output=document.createElement("canvas");output.width=Math.max(1,Math.round(rect.w));output.height=Math.max(1,Math.round(rect.h));
+      const c=output.getContext("2d");
+      c.translate(-rect.x,-rect.y);
+      const {w,h}=rotated();
+      c.translate(w/2,h/2);c.rotate(turn*Math.PI/180);
+      c.drawImage(image,-image.naturalWidth/2,-image.naturalHeight/2);
+      output.toBlob(blob=>{
+        if(!blob){obAvviso("Impossibile salvare il ritaglio.");return;}
+        finish(new File([blob],file.name.replace(/\\.[^.]+$/,"")+"_ritaglio.jpg",{type:"image/jpeg",lastModified:Date.now()}));
+      },"image/jpeg",.94);
+    };
+    resetRect();draw();
+  });
+}
+async function obPreparaFotoSelezionata(input){
+  const selected=input.files?.[0];if(!selected)return null;
+  const prepared=await obRitagliaFotoSoggetto(selected);
+  if(!prepared){input.value="";return null;}
+  if(prepared!==selected){
+    const transfer=new DataTransfer();transfer.items.add(prepared);input.files=transfer.files;
+  }
+  return prepared;
 }
 function obFotoEditorInit(){
   const input=document.getElementById("s_foto_file");
@@ -4700,8 +4875,10 @@ function obFotoEditorInit(){
   box.appendChild(caption);
   if(!input.dataset.obFotoPreviewBound){
     input.dataset.obFotoPreviewBound="1";
-    input.addEventListener("change",()=>{
-      const file=input.files?.[0];if(!file)return;
+    input.addEventListener("change",async()=>{
+      let file;
+      try{file=await obPreparaFotoSelezionata(input);}catch(e){input.value="";errore(e);return;}
+      if(!file)return;
       const wrap=document.getElementById("obFotoEditorPick");if(!wrap)return;
       wrap.replaceChildren();
       const img=document.createElement("img");
@@ -4770,17 +4947,25 @@ async function apriValutazioneAI(id){
     root.innerHTML=`
       <div class="card">
         <h3><img class="ob-record-icon" src="assets_embedded/assets_embedded/ob_asset_005_cc38f88be0.jpg" alt=""> Valuta con AI</h3>
-        <h4><img class="ob-record-icon" src="assets_embedded/assets_embedded/ob_asset_074_0548140674.jpg" alt=""> ${esc((s.anno||"")+" / "+(s.numero||""))}</h4>
+        <h4><img class="ob-record-icon" src="assets_embedded/assets_embedded/ob_asset_026_9256e42820.jpg" alt=""> ${esc((s.anno||"")+" / "+(s.numero||""))}</h4>
         <p><b>Sesso:</b> ${esc(s.sesso||"-")} · <b>Razza:</b> ${esc(s.razza||"-")} · <b>Mutazione:</b> ${esc(s.mutazione||"-")}</p>
         ${foto}
         <div style="margin-top:16px">
-          <label for="obAiVideoFile"><b>Video obbligatorio del soggetto (30–50 secondi)</b></label>
-          <input id="obAiVideoFile" type="file" accept="video/mp4,video/quicktime,video/webm,.mov,.mp4,.webm">
-          <p class="small">Riprendi il soggetto per intero, con buona luce e senza ostacoli. Massimo 60 MB.</p>
-          <label><input id="obAiPrivacy" type="checkbox"> Autorizzo l'invio di foto e video al servizio AI per questa valutazione, secondo l'informativa privacy.</label>
-          <p class="small">5 valutazioni gratuite al giorno per account. La formazione coppie è gratuita.</p>
-          <button class="primary ob-action ob-act-ai" id="btnEseguiValutazioneAI">Avvia valutazione AI gratuita</button>
+          <label for="obAiMode"><b>Quale materiale vuoi far valutare?</b></label>
+          <select id="obAiMode">
+            <option value="foto">Solo fotografia</option>
+            <option value="video">Solo video</option>
+            <option value="entrambi" selected>Fotografia e video</option>
+          </select>
+          <div id="obAiVideoSection">
+            <label for="obAiVideoFile"><b>Video temporaneo del soggetto (massimo 50 secondi)</b></label>
+            <input id="obAiVideoFile" type="file" accept="video/mp4,video/quicktime,video/webm,.mov,.mp4,.webm">
+            <p class="small">Riprendi il soggetto per intero, con buona luce e senza ostacoli. Massimo 50 MB. Il video viene eliminato dopo l'analisi.</p>
+          </div>
+          <label><input id="obAiPrivacy" type="checkbox"> Autorizzo l'invio al servizio AI dei materiali selezionati per questa valutazione, secondo l'informativa privacy.</label>
+          <p class="small">Valutazioni AI giornaliere: 5 per allevatore, 100 per il proprietario su Sviluppo.</p>
           <button class="secondary" id="btnIndietroAI">← Torna ai soggetti</button>
+          <button class="primary" id="btnEseguiValutazioneAI">Valuta con AI</button>
         </div>
         <div id="aiResult" style="margin-top:16px"></div>
       </div>`;
@@ -4790,6 +4975,10 @@ async function apriValutazioneAI(id){
       const ph=root.querySelector('.ai-foto-placeholder');
       if(ph) ph.style.display='block';
     });
+    const modeInput=$("obAiMode");
+    const syncAiVideo=()=>{const section=$("obAiVideoSection");if(section)section.hidden=modeInput?.value==="foto";};
+    modeInput?.addEventListener("change",syncAiVideo);
+    syncAiVideo();
     $("btnEseguiValutazioneAI")?.addEventListener('click',()=>eseguiValutazioneAI(id));
     $("btnIndietroAI")?.addEventListener('click',()=>apriPagina('soggetti'));
   }catch(e){
@@ -4846,6 +5035,21 @@ async function recuperaValutazioneCoerenteSalvata(id,impronta){
   }
   return null;
 }
+function mostraScansioneAI(){
+  const wrap=document.querySelector("#aiValutazione .ai-foto-wrap");
+  if(!wrap)return;
+  wrap.classList.add("ob-ai-scanning");
+  if(!wrap.querySelector(".ob-ai-scan-line")){
+    const line=document.createElement("div");
+    line.className="ob-ai-scan-line";
+    line.setAttribute("aria-hidden","true");
+    wrap.appendChild(line);
+  }
+}
+function fermaScansioneAI(){
+  const wrap=document.querySelector("#aiValutazione .ai-foto-wrap");
+  if(wrap){wrap.classList.remove("ob-ai-scanning");wrap.querySelector(".ob-ai-scan-line")?.remove();}
+}
 async function eseguiValutazioneAI(id){
   if(window.__obGuestMode){obAvviso("La valutazione AI online non è disponibile nella prova ospite locale.");return;}
   const root=$("aiResult");
@@ -4854,12 +5058,15 @@ async function eseguiValutazioneAI(id){
   let successful=false;
   if(btn?.disabled)return;
   try{
-    const file=$("obAiVideoFile")?.files?.[0];
-    if(!file)throw new Error("Seleziona un video del soggetto di 30–50 secondi.");
-    if(file.size>60*1024*1024)throw new Error("Video troppo grande: massimo 60 MB.");
-    const mime=file.type||(/\.mov$/i.test(file.name)?"video/quicktime":/\.webm$/i.test(file.name)?"video/webm":"video/mp4");
-    if(!["video/mp4","video/quicktime","video/webm"].includes(mime))throw new Error("Formato video non supportato (MP4, MOV o WebM).");
-    const durata=await new Promise((resolve,reject)=>{
+    const mode=$("obAiMode")?.value||"entrambi";
+    if(!["foto","video","entrambi"].includes(mode))throw new Error("Modalità AI non valida.");
+    const withVideo=mode!=="foto";
+    const file=withVideo?$("obAiVideoFile")?.files?.[0]:null;
+    if(withVideo&&!file)throw new Error("Seleziona un video del soggetto.");
+    if(file&&file.size>50*1024*1024)throw new Error("Il video supera il limite di 50 MB di Supabase Test. Riduci leggermente la dimensione del filmato prima di riprovare.");
+    const mime=file?(file.type||(/\\.mov$/i.test(file.name)?"video/quicktime":/\\.webm$/i.test(file.name)?"video/webm":"video/mp4")):"";
+    if(file&&!["video/mp4","video/quicktime","video/webm"].includes(mime))throw new Error("Formato video non supportato (MP4, MOV o WebM).");
+    const durata=file?await new Promise((resolve,reject)=>{
       const video=document.createElement("video");
       const url=URL.createObjectURL(file);
       let complete=false;
@@ -4873,30 +5080,33 @@ async function eseguiValutazioneAI(id){
       video.onloadedmetadata=()=>finish(null,video.duration);
       video.onerror=()=>finish(new Error("Video illeggibile: registra un nuovo MP4/MOV/WebM."));
       video.src=url;
-    });
-    if(!Number.isFinite(durata)||durata<30||durata>50)throw new Error("Il video deve durare almeno 30 e non più di 50 secondi.");
+    }):null;
+    if(file&&(!Number.isFinite(durata)||durata<1||durata>50))throw new Error("Il video deve durare da 1 a 50 secondi.");
     if(!$("obAiPrivacy")?.checked)throw new Error("Devi accettare l'informativa prima di inviare foto e video.");
     const dati=await leggi("soggetti");
     const s=dati.find(x=>String(x.id)===String(id));
     if(!s)throw new Error("Soggetto non trovato.");
     const u=await utenteCorrente();
-    if(!u?.id)throw new Error("Accedi al tuo account per le cinque valutazioni gratuite.");
+    if(!u?.id)throw new Error("Accedi al tuo account per utilizzare la valutazione AI.");
     const fotoUrl=await recuperaFotoAssociataSoggetto(id,s);
     if(!fotoUrl)throw new Error("Prima di valutare il soggetto, carica una foto nella sua scheda.");
-    if(!sb?.functions?.invoke)throw new Error("Motore AI gratuito non configurato nell'ambiente di sviluppo.");
+    if(!sb?.functions?.invoke)throw new Error("Motore AI non configurato nell'ambiente di sviluppo.");
     if(btn)btn.disabled=true;
-    if(root)root.textContent="Caricamento video e analisi AI in corso…";
+    if(root)root.textContent="Analisi AI in corso…";
+    mostraScansioneAI();
     const criteriFOI=await recuperaCriteriFOIPerAI(s);
-    const ext=mime==="video/quicktime"?"mov":mime==="video/webm"?"webm":"mp4";
-    uploadedPath=u.id+"/"+id+"/"+crypto.randomUUID()+"."+ext;
-    const upload=await sb.storage.from("ob-ai-media").upload(uploadedPath,file,{contentType:mime,upsert:false});
-    if(upload.error)throw new Error("Caricamento video non riuscito: "+upload.error.message);
+    if(file){
+      const ext=mime==="video/quicktime"?"mov":mime==="video/webm"?"webm":"mp4";
+      uploadedPath=u.id+"/"+id+"/"+crypto.randomUUID()+"."+ext;
+      const upload=await sb.storage.from("ob-ai-media").upload(uploadedPath,file,{contentType:mime,upsert:false});
+      if(upload.error)throw new Error("Caricamento video non riuscito: "+upload.error.message);
+    }
     const call=await sb.functions.invoke("ornibreed-ai-eval",{
-      body:{soggetto_id:String(id),video_path:uploadedPath,durata_secondi:durata,
+      body:{soggetto_id:String(id),modalita:mode,video_path:uploadedPath,durata_secondi:durata,
             consenso_privacy:true,criteri_foi:Array.isArray(criteriFOI)?criteriFOI:[]}
     });
     if(call.error){
-      let message=call.error.message||"Il motore AI gratuito non è disponibile.";
+      let message=call.error.message||"Il motore AI non è disponibile.";
       try{const response=call.error.context;const detail=await response?.json?.();if(detail?.error)message=detail.error;}catch(_){}
       throw new Error(message);
     }
@@ -4904,12 +5114,11 @@ async function eseguiValutazioneAI(id){
     if(!call.data?.ok||!call.data?.risultato)throw new Error("Risposta AI non valida: nessuna valutazione è stata salvata.");
     successful=true;
     const result=normalizzaRisultatoAIV17(call.data.risultato,criteriFOI);
-    // Il backend non fornisce ancora criteri validati server-side:
-    // i punteggi per criterio sono indicativi, mai un totale FOI ufficiale.
-    result.punteggio=null;
-    result.percentuale=null;
-    result.valutazione_completa=false;
-    result.avvertenza="Analisi foto + video indicativa: non sostituisce il giudizio ufficiale FOI/COM.";
+    // I criteri e i massimali provengono dalla risposta verificata del server.
+    // Il voto resta indicativo e non costituisce un giudizio ufficiale FOI/COM.
+    result.avvertenza=call.data.risultato?.avvertenza||"Valutazione AI indicativa: non sostituisce il giudizio ufficiale FOI/COM.";
+    result.riconoscimento_ai=call.data.risultato?.riconoscimento_ai||null;
+    result.modalita=mode;
     if(typeof call.data.remaining==="number")result.valutazioni_gratuite_rimanenti=call.data.remaining;
     // Compatibilità con la cronologia esistente. La fonte primaria rimane ob_ai_evaluations_v2.
     try{
@@ -4923,21 +5132,26 @@ async function eseguiValutazioneAI(id){
     }catch(e){console.warn("Cronologia AI precedente non disponibile",e);}
     renderRisultatoAI(id,result);
     if(root&&typeof call.data.remaining==="number"){
-      root.insertAdjacentHTML("beforeend","<p class='small'>Valutazioni gratuite rimaste oggi: "+Number(call.data.remaining)+" su 5.</p>");
+      root.insertAdjacentHTML("beforeend","<p class='small'>Valutazioni AI rimaste oggi: "+Number(call.data.remaining)+" su "+Number(call.data.daily_limit||5)+".</p>");
     }
     try{await aggiornaSoggetti();}catch(e){console.warn("Aggiornamento scheda soggetto:",e);}
   }catch(e){
     console.error("Valutazione AI foto e video:",e);
     if(root)root.textContent="Valutazione non completata: "+(e?.message||e);
-    if(uploadedPath&&!successful){try{await sb.storage.from("ob-ai-media").remove([uploadedPath]);}catch(_){}}
+
   }finally{
+    fermaScansioneAI();
+    if(uploadedPath){try{const cleanup=await sb.storage.from("ob-ai-media").remove([uploadedPath]);if(cleanup.error)console.warn("Pulizia video temporaneo:",cleanup.error.message);}catch(e){console.warn("Pulizia video temporaneo:",e);}}
     if(btn)btn.disabled=false;
   }
 }
 function renderRisultatoAI(id,payload){
   const target=document.getElementById("risultatoAI")||document.getElementById("risultato-ai")||document.getElementById("aiResult");
   if(target){
-    target.innerHTML=htmlSchedaAIV17(payload)+`<div class="ai-v17-actions"><button class="ai-v17-btn secondary" onclick="mostraValutazioneSalvata('${escapeHtmlV17(id)}')">👁️ Osserva valutazione</button><button class="ai-v17-btn primary" onclick="eseguiValutazioneAI('${escapeHtmlV17(id)}')">🔄 Nuova valutazione AI</button></div>`;
+    target.innerHTML=`<div role="status" aria-live="polite" tabindex="-1" class="ai-v17-reliability"><strong>✅ Valutazione completata</strong><div class="ai-v17-muted">Il risultato è disponibile qui sotto.</div></div>`+htmlSchedaAIV17(payload)+`<div class="ai-v17-actions"><button class="ai-v17-btn secondary" onclick="mostraValutazioneSalvata('${escapeHtmlV17(id)}')">👁️ Osserva valutazione</button><button class="ai-v17-btn primary" onclick="eseguiValutazioneAI('${escapeHtmlV17(id)}')">🔄 Nuova valutazione AI</button></div>`;
+    requestAnimationFrame(()=>{
+      target.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
+    });
   }
 }
 function obV435StatoSoggetto(v){
@@ -5061,7 +5275,7 @@ async function obV436AggiornaSoggettiCompleto(){
       ${s.portatore_di?`<p><b><img class="ob-record-icon" src="assets_embedded/assets_embedded/ob_asset_075_5f50b38bf6.jpg" alt=""> Portatore di:</b> ${esc(s.portatore_di)} <span class="small">(${esc(s.portatore_origine||"DICHIARATO")})</span></p>`:""}
       <p><b>Gabbia:</b> ${esc(obGabbiaDisplay(s.gabbia||"-"))}</p><p><b>Padre:</b> ${esc(s.padre||"-")} &nbsp; <b>Madre:</b> ${esc(s.madre||"-")}</p>
       <p><b>Stato:</b> ${esc(obV435StatoSoggetto(s.stato))}</p><p><b>Note:</b> ${esc(s.note||"-")}</p>
-      <div class="ob-soggetto-photo-row"><div class="soggetto-foto-box ob-foto-big" data-foto-box="${esc(s.id)}"><img class="ob-record-icon" src="assets_embedded/assets_embedded/ob_asset_004_9a860456d5.jpg" alt=""> Caricamento foto...</div><div class="ob-soggetto-photo-tools"><button type="button" class="secondary ob-photo-change" data-photo-soggetto="${esc(s.id)}">${s.foto_url?"Cambia foto":"Carica foto"}</button><button type="button" class="danger ob-photo-delete" data-remove-photo-soggetto="${esc(s.id)}" ${s.foto_url?"":"hidden"}>Elimina foto</button></div></div>
+      <div class="ob-soggetto-photo-row"><div class="soggetto-foto-box ob-foto-big" data-foto-box="${esc(s.id)}"><span class="small">📷</span></div><div class="ob-soggetto-photo-tools"><button type="button" class="secondary ob-photo-change" data-photo-soggetto="${esc(s.id)}">${s.foto_url?"Cambia foto":"Carica foto"}</button><button type="button" class="danger ob-photo-delete" data-remove-photo-soggetto="${esc(s.id)}" ${s.foto_url?"":"hidden"}>Elimina foto</button></div></div>
       ${(()=>{const av=JSON.parse(localStorage.getItem('myagari_ai_scores')||'{}')[String(s.id)];return av&&Number.isFinite(Number(av.score))?'<p class="ai-punteggio"><img class="ob-action-icon" src="assets_embedded/assets_embedded/ob_asset_005_cc38f88be0.jpg" alt=""> Valutazione AI: '+Number(av.score).toFixed(1)+' / 100</p>':'';})()}
       <div class="actions ob-subject-four-actions" style="display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important">
         <button class="ob-action ob-act-modifica" data-edit-soggetto="${esc(s.id)}">Modifica</button>
@@ -5081,7 +5295,7 @@ async function obV436AggiornaSoggettiCompleto(){
       if(url){
         box.innerHTML='<img src="'+esc(url)+'" alt="Foto soggetto" class="soggetto-thumb" loading="eager">';
         box.querySelector('img')?.addEventListener('error',()=>{box.innerHTML='<img class="ob-record-icon" src="assets_embedded/assets_embedded/ob_asset_004_9a860456d5.jpg" alt=""> Foto non disponibile<br><span class="small">La foto risulta associata ma non è leggibile dal bucket.</span>';});
-      }else box.innerHTML='<img class="ob-record-icon" src="assets_embedded/assets_embedded/ob_asset_004_9a860456d5.jpg" alt=""> Nessuna foto caricata<br><span class="small">Usa il pulsante Carica foto.</span>';
+      }else box.innerHTML='<span style="font-size:2rem" aria-hidden="true">📷</span><span class="small">Aggiungi una foto</span>';
     }));
     bindDeleteButtons();bindEditSoggetti();obV435BindArchiveSoggetti();
   }catch(e){errore(e);}
@@ -8112,7 +8326,12 @@ box.innerHTML = `
     const variants=C.variants.filter(v=>ids.has(String(v.taxon_id))&&
       ["MUTATION_EXPRESSION","COMBINATION","ANCESTRAL","PHENOTYPE"].includes(String(v.variant_type||"").toUpperCase())).map(v=>String(v.name||""));
     const ancestral=ids.size?["Ancestrale"]:[];
-    return uniq([...ancestral,...mutations,...catalog,...phenotypes,...variants,...C.canaryColors]);
+    // Le denominazioni di colore semplici devono essere visibili prima delle
+    // combinazioni genetiche complesse, anche con l'elenco limitato su mobile.
+    // Mantieni tutte le voci originali e i nomi canonici del database.
+    const names=uniq([...ancestral,...mutations,...catalog,...phenotypes,...variants,...C.canaryColors]);
+    const simpleColor=/^(?:giallo|giallo avorio|rosso|rosso avorio|bianco)\\s+(?:intenso|brinato|mosaico|recessivo|dominante)$/i;
+    return names.sort((a,b)=>Number(simpleColor.test(b))-Number(simpleColor.test(a))||a.localeCompare(b,"it"));
   };
   const mutationItems=()=>{
     const s=norm($id("s_specie")?.value||""),ids=taxIds();
@@ -8568,7 +8787,7 @@ function normalizzaRisultatoAIV17(raw,criteriFOI){
     const nome=x?.criterio??x?.nome??x?.nome_criterio??x?.category??"";
     return {x,nomeNorm:normalizzaNomeCriterioV177(nome)};
   });
-  const criteri=(criteriFOI||[]).map(c=>{
+  const criteri=((Array.isArray(raw.criteri)&&raw.criteri.length)?raw.criteri:(criteriFOI||[])).map(c=>{
     const nome=c.criterio??c.nome??c.nome_criterio??c.descrizione??"Criterio";
     const nomeNorm=normalizzaNomeCriterioV177(nome);
     // Prima corrispondenza esatta normalizzata, poi tolleranza per nomi leggermente diversi.
@@ -8600,9 +8819,13 @@ function normalizzaRisultatoAIV17(raw,criteriFOI){
   const tot=tuttiValutati
     ? criteri.reduce((s,c)=>s+(Number(c.punteggio)||0),0)
     : null;
+  const puntiParziali=validi.reduce((sum,c)=>sum+Number(c.punteggio),0);
+  const massimoParziale=validi.reduce((sum,c)=>sum+(Number(c.punteggio_max)||0),0);
   return {
     // V17.7: una risposta incompleta non diventa mai 0/100.
     punteggio:tot,
+    punteggio_parziale:puntiParziali,
+    massimo_parziale:massimoParziale,
     punteggio_massimo:maxTot||100,
     percentuale:(tot!==null&&maxTot)?Math.round(tot/maxTot*1000)/10:null,
     criteri,
@@ -8619,7 +8842,8 @@ function normalizzaRisultatoAIV17(raw,criteriFOI){
 function htmlSchedaAIV17(p){
   p=p||{};
   const rows=(p.criteri||[]).map(c=>`<tr><td><strong>${escapeHtmlV17(c.criterio)}</strong></td><td>${c.punteggio==null?"N/V":escapeHtmlV17(c.punteggio)}</td><td>${escapeHtmlV17(c.punteggio_max)}</td><td>${escapeHtmlV17(c.giudizio||(c.valutabile?"":"Non valutabile con sufficiente affidabilità dalla foto disponibile."))}</td></tr>`).join("");
-  return `<div class="ai-v17-sheet"><div class="ai-v17-muted">Valutazione indicativa AI su foto + video (criteri da validare)</div>${p._riutilizzata_per_coerenza?`<div class="ai-v17-consistency">🔒 Stessa foto e stessi criteri FOI: è stata mantenuta la valutazione già salvata per evitare variazioni casuali tra dispositivi.</div>`:""}<div class="ai-v17-score">${p.punteggio==null?"N/V":escapeHtmlV17(p.punteggio)} / ${escapeHtmlV17(p.punteggio_massimo||100)}</div>
+  return `<div class="ai-v17-sheet"><div class="ai-v17-muted">Valutazione AI indicativa — non giudizio ufficiale FOI/COM</div>${p.avvertenza?`<div class="ai-v17-muted">${escapeHtmlV17(p.avvertenza)}</div>`:""}${p.riconoscimento_ai?`<div class="ai-v17-muted">Riconoscimento indipendente: ${escapeHtmlV17([p.riconoscimento_ai.specie,p.riconoscimento_ai.razza,p.riconoscimento_ai.categoria,p.riconoscimento_ai.mutazione].filter(Boolean).join(" · "))}</div>`:""}${p._riutilizzata_per_coerenza?`<div class="ai-v17-consistency">🔒 Stessa foto e stessi criteri FOI: è stata mantenuta la valutazione già salvata per evitare variazioni casuali tra dispositivi.</div>`:""}<div class="ai-v17-score">${p.punteggio==null?(Number(p.massimo_parziale)>0?`${escapeHtmlV17(p.punteggio_parziale)} / ${escapeHtmlV17(p.massimo_parziale)} (parziale)`:"N/V / 100"):`${escapeHtmlV17(p.punteggio)} / ${escapeHtmlV17(p.punteggio_massimo||100)}`}</div>
+  ${p.punteggio==null&&p.massimo_parziale>0?`<div class="ai-v17-reliability"><strong>Punteggio parziale: ${escapeHtmlV17(p.punteggio_parziale)} / ${escapeHtmlV17(p.massimo_parziale)}</strong><div class="ai-v17-muted">I criteri non osservabili sono esclusi dal conteggio. Questo non è un voto totale su 100.</div></div>`:""}
   ${p.punteggio==null?`<div class="ai-v17-reliability"><strong>⚠️ Valutazione FOI non completata.</strong><div class="ai-v17-muted" style="margin-top:4px">Il punteggio totale non è certificabile senza criteri verificati sul server. Le osservazioni su foto e video restano indicative; non è necessario ripetere la valutazione solo per questo avviso.</div></div>`:""}
   ${rows?`<table class="ai-v17-table"><thead><tr><th>Criterio FOI</th><th>Punti</th><th>Max</th><th>Osservazione</th></tr></thead><tbody>${rows}</tbody></table>`:"<div class='ai-v17-muted'>Nessun criterio FOI disponibile.</div>"}
   <div class="ai-v17-section"><h4>✅ Punti di forza</h4>${listHtmlV17(p.punti_forza)}</div>
@@ -10592,7 +10816,7 @@ function v3092BreedLabel(b){const H=window.OB_CATALOG_HELPERS;return H?H.breedLa
 function v3092MutationLabel(m){const H=window.OB_CATALOG_HELPERS;return H?H.mutLabel(m):v19Norm(m?.name);}
 function v3092Option(value,label,selected){return '<option value="'+v19Esc(value)+'"'+(selected?' selected':'')+'>'+v19Esc(label)+'</option>';}
 async function v3092Fetch(table,select="*"){try{const q=await sb.from(table).select(select);if(q.error)throw q.error;return Array.isArray(q.data)?q.data:[];}catch(e){console.warn("OrniBreed dynamic judge "+table,e);return [];}}
-async function v3092LoadCatalog(){if(window.OB_CATALOG?.taxa?.length){v19ManualCatalog.taxa=window.OB_CATALOG.taxa;v19ManualCatalog.breeds=window.OB_CATALOG.breeds;v19ManualCatalog.mutations=window.OB_CATALOG.mutations;return;}const [taxa,breeds,mutations]=await Promise.all([v3092Fetch("ob_taxa"),v3092Fetch("ob_breeds"),v3092Fetch("ob_mutations")]);v19ManualCatalog.taxa=taxa.filter(x=>x.active!==false);v19ManualCatalog.breeds=breeds.filter(x=>String(x.status||"").toUpperCase()!=="SUPERSEDED");v19ManualCatalog.mutations=mutations.filter(x=>String(x.status||"").toUpperCase()!=="SUPERSEDED");}
+async function v3092LoadCatalog(){if(window.OB_CATALOG?.taxa?.length){v19ManualCatalog.taxa=window.OB_CATALOG.taxa;v19ManualCatalog.breeds=window.OB_CATALOG.breeds||[];v19ManualCatalog.mutations=window.OB_CATALOG.mutations||[];return;}const [taxa,breeds,mutations]=await Promise.all([v3092Fetch("ob_taxa"),v3092Fetch("ob_breeds"),v3092Fetch("ob_mutations")]);v19ManualCatalog.taxa=taxa.filter(x=>x.active!==false);v19ManualCatalog.breeds=breeds.filter(x=>String(x.status||"").toUpperCase()!=="SUPERSEDED");v19ManualCatalog.mutations=mutations.filter(x=>String(x.status||"").toUpperCase()!=="SUPERSEDED");}
 function v3092FindTaxaBySubject(s){const k=v3092NormKey(s?.specie||s?.species||s?.taxon||s?.nome_specie);if(!k)return [];const H=window.OB_CATALOG_HELPERS;if(H)return v19ManualCatalog.taxa.filter(t=>v3092NormKey(H.taxLabel(t))===k||H.names(t).some(n=>v3092NormKey(n)===k)||(k==="canarino"&&H.isCanary(t)));return v19ManualCatalog.taxa.filter(t=>[t.common_name,t.scientific_name,...(Array.isArray(t.aliases)?t.aliases:[])].map(v3092NormKey).includes(k));}
 function v3092FindBreedAny(name,taxa=[]){const k=v3092NormKey(name);if(!k)return null;const tids=new Set(taxa.map(t=>String(t.id))),H=window.OB_CATALOG_HELPERS;const rows=tids.size?v19ManualCatalog.breeds.filter(b=>tids.has(String(b.taxon_id))):v19ManualCatalog.breeds;return rows.find(b=>v3092NormKey(H?H.breedLabel(b):b.name)===k||[b.name,...(Array.isArray(b.aliases)?b.aliases:[])].map(v3092NormKey).includes(k))||null;}
 function v3092FindBreed(taxonId,name){return v3092FindBreedAny(name,v19ManualCatalog.taxa.filter(t=>String(t.id)===String(taxonId)));}
@@ -10643,7 +10867,34 @@ async function v3092AutoResolve(s){
     if(breedTaxon)taxon=breedTaxon;
   }
   if(!taxon&&taxa.length===1)taxon=taxa[0];
-  if(!taxon&&!breed)return {reason:"TAXON_NOT_RECOGNIZED"};
+  if(!taxon&&!breed){
+    // Se il catalogo condiviso non è ancora pronto, risolvi la specie dal
+    // catalogo originale Supabase prima di dichiararla sconosciuta.
+    const freshTaxa=await v3092Fetch("ob_taxa");
+    if(freshTaxa.length){
+      v19ManualCatalog.taxa=freshTaxa.filter(t=>t.active!==false);
+      taxa=v3092FindTaxaBySubject(s);
+      if(taxa.length===1)taxon=taxa[0];
+      if(razzaText){
+        const freshBreeds=await v3092Fetch("ob_breeds");
+        if(freshBreeds.length)v19ManualCatalog.breeds=freshBreeds.filter(b=>String(b.status||"").toUpperCase()!=="SUPERSEDED");
+        breed=v3092FindBreedAny(razzaText,taxa);
+        if(breed)taxon=v19ManualCatalog.taxa.find(t=>String(t.id)===String(breed.taxon_id))||taxon;
+      }
+    }
+    if(!taxon&&!breed){
+      // Il nome italiano del canarino è un taxon, mentre "Canarino di Colore"
+      // è una categoria espositiva: non richiedere un breed_id inesistente.
+      const key=v3092NormKey(specieText);
+      if(key==="canarino"||key==="canarino domestico"){
+        const canary=v19ManualCatalog.taxa.filter(t=>
+          v3092NormKey(t.common_name)==="canarino"||
+          v3092NormKey(t.scientific_name)==="serinus canaria domestica");
+        if(canary.length===1)taxon=canary[0];
+      }
+      if(!taxon)return {reason:"TAXON_NOT_RECOGNIZED"};
+    }
+  }
 
   const savedMutation=s?.mutation_id?v19ManualCatalog.mutations.find(m=>String(m.id)===String(s.mutation_id)):null;
   const mutName=v3092SubjectMutation(s);
@@ -10690,7 +10941,18 @@ function v19RenderSchedaGiudizio(reason=""){
   document.querySelectorAll("#v19JudgingRows input[data-score]").forEach(inp=>inp.addEventListener("input",v19TotaleGiudizio));
   if($("v19JudgeSave"))$("v19JudgeSave").onclick=v19SalvaSchedaGiudizio;
   if($("v3092ChangeRoute"))$("v3092ChangeRoute").onclick=()=>{v19JudgingCriteria=[];v19JudgingRoute=null;v19RenderSchedaGiudizio("Selezione manuale richiesta.");};
-  v3092BindManual();v19RenderStorico();
+  v3092BindManual();
+  // Precompila la ricerca manuale con i dati del soggetto già registrato.
+  // Non sostituisce la verifica della disponibilità della scheda FOI.
+  const manualTax=$("v3092ManualTaxonText"),manualBreed=$("v3092ManualBreedText"),manualMutation=$("v3092ManualMutationText"),manualSex=$("v3092ManualSex");
+  if(manualTax){
+    manualTax.value=v19Norm(s.specie)||"";
+    manualTax.dispatchEvent(new Event("input",{bubbles:true}));
+    if(manualBreed){manualBreed.value=v19Norm(s.razza)||"";manualBreed.dispatchEvent(new Event("input",{bubbles:true}));}
+    if(manualMutation)manualMutation.value=v3092SubjectMutation(s)||"";
+    if(manualSex)manualSex.value=v3092SubjectSex(s)||"";
+  }
+  v19RenderStorico();
 }
 async function v19ApriSchedaGiudizio(id){
   try{
@@ -10700,7 +10962,7 @@ async function v19ApriSchedaGiudizio(id){
     v19JudgingSubject=soggetto;v19JudgingCriteria=[];v19JudgingRoute=null;
     const [auto,history]=await Promise.all([v3092AutoResolve(soggetto),v19CaricaStoricoGiudizi(soggetto.id)]);v19JudgingHistory=history;
     if(auto?.template){v19JudgingRoute=auto;v19JudgingCriteria=auto.criteria||[];v19RenderSchedaGiudizio();}
-    else{const msg=auto?.reason==="TAXON_NOT_RECOGNIZED"?"Specie non riconosciuta automaticamente: selezionala manualmente.":auto?.reason==="AMBIGUOUS"?"La combinazione corrisponde a più schede: specifica manualmente i dati.":"Scheda ufficiale verificata non disponibile per questo soggetto. Puoi cercare manualmente senza usare schede di altre specie o razze.";v19RenderSchedaGiudizio(msg);}
+    else{const msg=auto?.reason==="TAXON_NOT_RECOGNIZED"?"Specie non riconosciuta nel catalogo: verifica la denominazione.":auto?.reason==="AMBIGUOUS"?"La combinazione corrisponde a più schede: specifica manualmente i dati.":"Scheda ufficiale verificata non disponibile per questo soggetto. Puoi cercare manualmente senza usare schede di altre specie o razze.";v19RenderSchedaGiudizio(msg);}
     const modal=$("v19JudgingModal");if(!modal)throw new Error("Modal scheda valutazione FOI non trovato");modal.classList.add("open");modal.style.display="flex";modal.setAttribute("aria-hidden","false");window.__obJudgeScrollY=window.scrollY||0;document.body.style.position="fixed";document.body.style.top=(-window.__obJudgeScrollY)+"px";document.body.style.width="100%";document.body.style.overflow="hidden";try{modal.scrollTop=0;}catch(_){}
   }catch(e){console.error("Apertura scheda valutazione FOI:",e);obAvviso(v19J("cantOpen"));}
 }

@@ -31,6 +31,9 @@ self.addEventListener("fetch",event=>{
  const url=new URL(req.url);
  if(url.origin!==self.location.origin)return;
  if(req.mode==="navigate"){
+   const appRoot=new URL("./",self.registration.scope);
+   const isAppHome=url.pathname===appRoot.pathname||url.pathname===appRoot.pathname+"index.html";
+   if(!isAppHome){event.respondWith(fetch(req));return;}
    event.respondWith((async()=>{
      const cache=await caches.open(OB_CACHE);
      const target=url.searchParams.get("ob_release");
@@ -44,7 +47,7 @@ self.addEventListener("fetch",event=>{
          const fresh=await fetch(installUrl.href,{cache:"no-store",redirect:"follow"});
          if(!fresh.ok)throw new Error("Download HTTP "+fresh.status);
          const html=await fresh.clone().text();
-         const meta=html.match(/<meta\\b(?=[^>]*\\bname\\s*=\\s*["']ornibreed-version["'])(?=[^>]*\\bcontent\\s*=\\s*["']V([^"']+)["'])[^>]*>/i);
+         const meta=html.match(/<meta\b(?=[^>]*\bname\s*=\s*["']ornibreed-version["'])(?=[^>]*\bcontent\s*=\s*["']V([^"']+)["'])[^>]*>/i);
          if(!meta||meta[1]!==target)throw new Error("Downloaded version does not match "+target);
          // Commit the new HTML only after the exact version was verified.
          await cache.put("./",fresh.clone());

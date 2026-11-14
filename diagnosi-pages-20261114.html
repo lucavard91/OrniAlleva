@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OrniAlleva - Diagnosi Pages</title><style>body{font-family:system-ui,sans-serif;margin:24px;line-height:1.5;background:#f6f8f7;color:#10251c}main{max-width:680px;margin:auto}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#fff;border:1px solid #ddd;padding:14px;border-radius:8px}h1{font-size:1.5rem}</style></head><body><main><h1>Diagnosi OrniAlleva Clienti</h1><p>Questa pagina è indipendente dall'app e non modifica dati o cache.</p><pre id="report">Verifica in corso…</pre></main><script>
+(async function(){
+ const out=document.getElementById('report'), rows=[];
+ rows.push('Pagina diagnostica: caricata correttamente');
+ rows.push('Indirizzo: '+location.pathname);
+ rows.push('Service worker attivo su questa pagina: '+(navigator.serviceWorker&&navigator.serviceWorker.controller?'SÌ':'NO'));
+ try{const r=await fetch('./index.html?ob_diagnostic_read=20261114',{cache:'no-store'});const t=await r.text();rows.push('index.html HTTP: '+r.status);rows.push('Dimensione HTML: '+t.length+' caratteri');const m=t.match(/name="ornibreed-version" content="([^"]+)"/);rows.push('Versione HTML: '+(m?m[1]:'non rilevata'));rows.push('Contiene schermata di accesso: '+(/v255BrandIntro|login/i.test(t)?'SÌ':'NO'));}catch(e){rows.push('Errore lettura index.html: '+String(e))}
+ for(const path of ['service-worker.js','manifest.webmanifest','ob_asset_051_3aefa10cbb.jpg']){try{const r=await fetch('./'+path,{method:'HEAD',cache:'no-store'});rows.push(path+': HTTP '+r.status)}catch(e){rows.push(path+': '+String(e))}}
+ out.textContent=rows.join('\n');
+})();
+</script></body></html>

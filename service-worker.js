@@ -34,13 +34,13 @@ self.addEventListener("fetch",event=>{
    event.respondWith((async()=>{
      const cache=await caches.open(OB_CACHE);
      const target=url.searchParams.get("ob_release");
-     const approved=target&&/^\\d+\\.\\d+\\.\\d+$/.test(target)&&/^\\d{10,}$/.test(url.searchParams.get("ob_refresh")||"");
+     const approved=target&&/^\d+\.\d+\.\d+$/.test(target)&&/^\d{10,}$/.test(url.searchParams.get("ob_refresh")||"");
      if(approved){
        try{
          const fresh=await fetch("./",{cache:"no-store"});
          if(!fresh.ok)throw Error("HTTP "+fresh.status);
          const html=await fresh.clone().text();
-         const meta=html.match(/<meta\\s+name="ornibreed-version"\\s+content="V([^"]+)"/);
+         const meta=html.match(/<meta\s+name="ornibreed-version"\s+content="V([^"]+)"/);
          if(meta?.[1]!==target)throw Error("Version mismatch");
          await cache.put("./",fresh.clone());
          return fresh;

@@ -37,14 +37,23 @@ self.addEventListener("fetch",event=>{
      const approved=target&&/^\d+\.\d+\.\d+$/.test(target)&&/^\d{10,}$/.test(url.searchParams.get("ob_refresh")||"");
      if(approved){
        try{
-         const fresh=await fetch(new Request("./?ob_install="+encodeURIComponent(target)+"&t="+Date.now(),{cache:"reload"}));
-         if(!fresh.ok)throw Error("HTTP "+fresh.status);
+         // A manual installation must bypass both the approved offline cache and HTTP cache.
+         const installUrl=new URL("./",self.registration.scope);
+         installUrl.searchParams.set("ob_install",target);
+         installUrl.searchParams.set("ob_refresh",String(Date.now()));
+         const fresh=await fetch(installUrl.href,{cache:"no-store",redirect:"follow"});
+         if(!fresh.ok)throw new Error("Download HTTP "+fresh.status);
          const html=await fresh.clone().text();
-         const meta=html.match(/<meta\s+name=["\x27]ornibreed-version["\x27]\s+content=["\x27]V([^"\x27]+)["\x27]/);
-         if(meta?.[1]!==target)throw Error("Version mismatch");
+         const meta=html.match(/<meta\\b(?=[^>]*\\bname\\s*=\\s*["']ornibreed-version["'])(?=[^>]*\\bcontent\\s*=\\s*["']V([^"']+)["'])[^>]*>/i);
+         if(!meta||meta[1]!==target)throw new Error("Downloaded version does not match "+target);
+         // Commit the new HTML only after the exact version was verified.
          await cache.put("./",fresh.clone());
          return fresh;
-       }catch(e){return(await cache.match("./"))||Response.error();}
+       }catch(error){
+         console.error("[OrniAlleva] Manual update failed:",error);
+         // Never report a successful update by silently serving the previous version.
+         return new Response("Aggiornamento non completato. Riapri OrniAlleva e riprova. Dettaglio: "+String(error),{status:503,headers:{"Content-Type":"text/plain; charset=utf-8","Cache-Control":"no-store"}});
+       }
      }
      return(await cache.match("./"))||fetch(req);
    })());return;

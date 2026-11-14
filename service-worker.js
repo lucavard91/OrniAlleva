@@ -36,6 +36,10 @@ self.addEventListener("fetch",event=>{
    if(!isAppHome){event.respondWith(fetch(req));return;}
    event.respondWith((async()=>{
      const cache=await caches.open(OB_CACHE);
+     // Explicit Safari-only diagnostic: fetch the published page without changing approved PWA cache.
+     if(url.searchParams.get("ob_preview")==="1"){
+       try{return await fetch(req,{cache:"no-store"});}catch(e){return Response.error();}
+     }
      const target=url.searchParams.get("ob_release");
      const approved=target&&/^\d+\.\d+\.\d+$/.test(target)&&/^\d{10,}$/.test(url.searchParams.get("ob_refresh")||"");
      if(approved){

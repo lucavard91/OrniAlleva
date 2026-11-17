@@ -1,4 +1,4 @@
-const OB_CACHE = "ornialleva-clienti-update-gate-v1";
+const OB_CACHE = "ornialleva-clienti-update-gate-v2-admin";
 const OB_STATIC = ["./", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png", "./favicon-32.png", "./favicon-16.png", "./ob_asset_051_3aefa10cbb.jpg", "./ornibreed_home_banner_v2.png"];
 self.addEventListener("install", event => {
   // Migration from the previous network-first worker: cache the currently published app.
@@ -21,6 +21,11 @@ self.addEventListener("fetch", event => {
   if (url.hostname.includes("supabase.co")) return;
   if (url.origin !== self.location.origin && !["cdn.jsdelivr.net","cdnjs.cloudflare.com"].includes(url.hostname)) return;
   if (req.mode === "navigate") {
+    // Admin is a separate HTML page: never replace it with the cached Home.
+    if (url.pathname.endsWith("/admin.html")) {
+      event.respondWith(fetch(req, {cache:"no-store"}));
+      return;
+    }
     event.respondWith((async () => {
       const target = url.searchParams.get("ob_release");
       const approved = /^\d+\.\d+\.\d+$/.test(target || "") && /^\d{10,}$/.test(url.searchParams.get("ob_refresh") || "");
